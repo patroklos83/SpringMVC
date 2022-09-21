@@ -1,0 +1,10 @@
+FROM jenkins/jenkins
+
+#Enter as root user
+USER root
+
+#Install sshpass to be used for remote deployments
+RUN apt-get update && apt-get install -y sshpass
+
+EXPOSE 8080
+EXPOSE 50000

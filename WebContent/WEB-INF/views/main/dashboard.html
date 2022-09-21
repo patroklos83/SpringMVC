@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html 
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{main/masterlayout.html}">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style>
+h4 {
+	color: #4682B4;
+/* 	text-align: center; */
+/* 	margin-top: 50px; */
+/* 	font-size: 50px; */
+}
+
+footer {
+  text-align: center;
+  padding: 3px;
+  color: #4682B4;
+}
+</style>
+</head>
+<body>
+	<section layout:fragment="childpage">
+	
+	<div style="margin: 5% 10% 5% 10%">
+	
+		<div class="d-flex bd-highlight">
+			<div class="p-2 bd-highlight">
+				<img src="assets/img/user.png">
+			</div>
+			<div class="p-2 bd-highlight">
+				<h3>[(${WelcomeMessage})]</h3>
+				<h4>Lets start with a few actions<h4>
+				<p>
+				<a href="https://www.flaticon.com/free-icons/user" title="user icons"><span style='font-size: small'>User
+			icons created by Freepik - Flaticon</span></a>
+			</p>
+			</div>
+		</div>
+
+		<div style="margin-top: 10%">
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="col-md-12">
+						<div class="card">
+							<div class="card-header">Article</div>
+							<div class="card-body">
+								<h5 class="card-title"></h5>
+								<p class="card-text">Lets create our first Article.</p>
+								<a class="btn btn-primary disableHref"
+									href="index?page=article/new"
+									onclick="setContent('article/new')">Go</a>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="col-md-12">
+						<div class="card">
+							<div class="card-header">Activity</div>
+							<div class="card-body">
+								<h5 class="card-title"></h5>
+								<p class="card-text">Explore Audit Activity.</p>
+								<a class="btn btn-primary disableHref"
+									href="index?page=activitylogs"
+									onclick="setContent('activitylogs')">Explore</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	
+  </section>
+
+</body>
+</html>

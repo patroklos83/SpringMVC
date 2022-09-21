@@ -1,0 +1,24 @@
+pipeline {
+     agent any
+
+stages {
+    stage('Copy Artifact from Spring MVC project') {
+        steps {
+            
+           echo "The build number is ${env.BUILD}"
+            
+            copyArtifacts(
+                filter: "**/*.war",
+                projectName: "spring mvc",
+                fingerprintArtifacts: true,
+                selector: buildParameter('BUILD')
+            )
+        }
+    }
+    stage('deploy'){
+        steps{
+           sh "sshpass -p 'deployer' scp -o StrictHostKeyChecking=no target/*.war deployer@172.18.0.3:/usr/local/tomcat/webapps/springmvc.war"
+        }
+    }
+}
+}

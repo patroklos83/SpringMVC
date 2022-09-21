@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- CSRF tags -->
+<meta name="_csrf" content="${_csrf.token}" />
+<meta name="_csrf_header" content="${_csrf.headerName}" />
+<!--End of CSRF tags -->
+<title>Spring MVC</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+	integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+	crossorigin="anonymous"></script>
+
+<link rel="stylesheet"
+	href="//cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet"
+	th:href="${#httpServletRequest.getContextPath().toString()} + '/assets/js/bootstrap-datepicker/bootstrap-datepicker.min.css'" />
+<script
+	th:src="${#httpServletRequest.getContextPath().toString()} + '/assets/js/bootstrap-datepicker/bootstrap-datepicker.min.js'"></script>
+
+
+<style>
+body {
+	margin: 0;
+	font-family: "Lato", sans-serif;
+}
+
+.sidebar {
+	margin: 0;
+	padding: 0;
+	width: 200px;
+	background-color: #f1f1f1;
+	position: fixed;
+	height: 100%;
+	overflow: auto;
+}
+
+.sidebar a {
+	display: block;
+	color: black;
+	padding: 16px;
+	text-decoration: none;
+}
+
+.sidebar a.active {
+	background-color: #04AA6D;
+	color: white;
+}
+
+.sidebar a:hover:not(.active) {
+	background-color: #555;
+	color: white;
+}
+
+div.content {
+	margin-left: 200px;
+	padding: 1px 16px;
+	height: 1000px;
+}
+
+@media screen and (max-width: 700px) {
+	.sidebar {
+		width: 100%;
+		height: auto;
+		position: relative;
+	}
+	.sidebar a {
+		float: left;
+	}
+	div.content {
+		margin-left: 0;
+	}
+}
+
+@media screen and (max-width: 400px) {
+	.sidebar a {
+		text-align: center;
+		float: none;
+	}
+}
+
+#overlay {
+	position: fixed;
+	top: 0;
+	z-index: 100;
+	width: 100%;
+	height: 100%;
+	display: none;
+	background: rgba(0, 0, 0, 0.6);
+}
+
+.cv-spinner {
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.spinner {
+	width: 40px;
+	height: 40px;
+	border: 4px #ddd solid;
+	border-top: 4px #2e93e6 solid;
+	border-radius: 50%;
+	animation: sp-anime 0.8s infinite linear;
+}
+
+@keyframes sp-anime { 100% {
+	transform: rotate(360deg);
+}
+
+}
+.is-hide {
+	display: none;
+}
+
+/* Table expand row */
+.hiddenRow {
+	padding: 0 !important;
+}
+/* End of Table expand row */
+td {
+	text-align: left !important;
+}
+
+th {
+	text-align: left !important;
+}
+
+.table-striped>tbody>tr:nth-child(4n-3)>td, .table-striped>tbody>tr:nth-child(4n-3)>th
+	{
+	background-color: #f9f9f9;
+}
+</style>
+</head>
+<body>
+	<!-- CSRF -->
+	<input name='_csrf' type="hidden" th:name="${_csrf.parameterName}"
+		th:value="${_csrf.token}" />
+	</div>
+		<div id="overlay">
+			<div class="cv-spinner">
+				<span class="spinner"></span>
+			</div>
+		</div>
+		    <div id='divPageContent'></div>
+	<div id="alertError"
+				class="alert alert-danger alert-dismissible fade show"
+				style="display: none;" role="alert">
+				<strong>Error!</strong><span id='errorMsg'
+					style='overflow: auto; padding-left: 15px'></span>
+				<button type="button" class="btn-close" aria-label="Close"
+					onclick='clearMessages()'></button>
+			</div>
+			<div id="alertSuccess"
+				class="alert alert-success alert-dismissible fade show"
+				style="display: none;" role="alert">
+				<strong>Success!</strong> <span id='successMsg'
+					style='overflow: auto; padding-left: 15px'></span>
+				<button type="button" class="btn-close" aria-label="Close"
+					onclick='clearMessages()'></button>
+			</div>
+	<section id="childpagePlaceholder" layout:fragment="childpage">
+		<p>Child Page content goes here</p>
+	</section>
+</body>
+<script>
+	function showErrorMessage(xhr) {
+		clearMessages();
+		$('#errorMsg').text(xhr.responseText);
+		$('#alertError').css("display", "block");
+	}
+
+	function showSuccessMessage() {
+		clearMessages();
+		$('#alertSuccess').css("display", "block");
+	}
+
+	function clearMessages() {
+		$('#alertError').css("display", "none");
+		$('#alertSuccess').css("display", "none");
+	}
+
+	function getAppURI() {
+		var pathArray = window.location.pathname.split('/');
+		if (pathArray != null && pathArray.length > 1) {
+			return pathArray[0] + pathArray[1];
+		}
+	}
+
+	function setContentEncoded(pagename) {
+		var page = window.atob(pagename);
+		setContent(page);
+	}
+
+	
+	var isPagePostBack = true;
+	function setContent(pagename) {
+		if (pagename == null || pagename == '') {
+			return;
+		}
+		
+// 		if (isPagePostBack){
+// 			console.log('executing setContent with full page postback');
+// 			executeProcessPostBack(pagename, null);
+// 			return;
+// 		}
+
+		var url = "/" + getAppURI() + "/" + pagename;
+		console.log(url);
+		$.ajax({
+			url : url,
+			type : 'POST',
+			data : "{contenttype: 'dynamic'}",
+			success : function(data) {
+				console.log('setContent data confirmed sucess');
+				var keepScripts = true;
+				var body = $($.parseHTML(data, keepScripts)).filter("#childpagePlaceholder").html();
+				$(".dynamic_content").html(body);
+				console.log(body);
+				clearMessages();
+				isPagePostBack = false;
+			},
+			error : function(xhr, status, error) {
+				console.log('setContent data error');
+				showErrorMessage(xhr);
+			}
+		})
+	}
+	
+	function executeProcess(uri, params, isDisplaySuccess, fillComponent) {
+		var url = "/" + getAppURI() + "/" + uri;
+
+		if (fillComponent == null && isPagePostBack){
+			console.log('executing process with full page postback: isPagePostBack:' + isPagePostBack);
+			executeProcessPostBack(url);
+			return;
+		}		
+		
+		$.ajax({
+			url : url,
+			type : 'POST',
+			data : params,
+			success : function(data) {
+				console.log('executeProcess dynamic_content success');
+				console.log(data);
+
+				var keepScripts = true;
+				var body = $($.parseHTML(data, keepScripts)).filter("#childpagePlaceholder").html();
+
+				if (body == null)
+					body = data;
+				
+				if (fillComponent != null) {
+					$(fillComponent).html(body); 
+					console.log(fillComponent);
+					console.log(body);
+				} else {
+					$(".dynamic_content").html(body);
+				}
+
+				clearMessages();
+				if (isDisplaySuccess == true) {
+					showSuccessMessage();
+				}
+			},
+			error : function(xhr, status, error) {
+				console.log('executeProcess fail');
+				showErrorMessage(xhr);
+			},
+		})
+	}
+
+	function executeProcessPostBack(uri) {
+		console.log(uri);
+		
+		var form;
+		var formId = "[[${formId}]]";
+		if (formId.length > 0){
+			form = $('#[[${formId}]]');
+			//var formValues = $('#[[${formId}]]').serialize();
+		}
+		else
+			{
+			  var form = $("<form></form>");
+			 // form.append('<input type="button" value="button">');
+			  $('body').append(form);
+			}
+		
+		form.attr("method", "post");
+		form.attr("action", uri);
+
+		var token = $("input[name='_csrf']").attr("value");
+		var header = $("meta[name='_csrf_header']").attr("content");
+
+		var csrfToken = document.createElement("input");
+		csrfToken.setAttribute("type", "hidden");
+		csrfToken.setAttribute("name", "_csrf");
+		csrfToken.setAttribute("value", token);		
+
+		form.append(csrfToken);
+		form.submit();
+	}
+
+	$('.disableHref').click(function(e) {
+		return false;
+	})
+
+	$(document).ready(function() {
+		var form = '[[${innerContentform}]]';
+		setContentEncoded(form);
+	});
+
+	var token = $("input[name='_csrf']").attr("value");
+	var header = $("meta[name='_csrf_header']").attr("content");
+
+// 	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+// 		if (options.type.toLowerCase() === "post") {
+// 			// initialize `data` to empty string if it does not exist
+// 			options.data = options.data || "";
+// 			// add leading ampersand if `data` is non-empty
+// 			options.data += options.data ? "&" : "";
+// 			// add _token entry
+// 			options.data += "_token=" + encodeURIComponent(token);
+
+// 			console.log("adding csrf token 2 " + token);
+// 		}
+// 	});
+
+	var loading;
+	$.ajaxSetup({
+		beforeSend : function(xhr, settings) {
+			console.log("adding csrf token" + " " + token);
+			loading = setTimeout("$('#overlay').fadeIn(300);", 700);
+			xhr.setRequestHeader('X-CSRF-TOKEN', token);
+		},
+		complete : function(xhr, settings) {
+			clearTimeout(loading);
+			setTimeout(function() {
+			$("#overlay").fadeOut(300);
+			}, 500);
+		},
+		error : function(xhr, status, error) {
+			console.log(error);
+				clearTimeout(loading);
+			setTimeout(function() {
+			$("#overlay").fadeOut(300);
+			}, 500);
+			showErrorMessage(xhr);
+		}
+	});
+	
+</script>
+</html>

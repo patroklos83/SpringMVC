@@ -1,0 +1,42 @@
+version: "3.9"
+
+#create volume
+volumes:
+   jenkins_data:
+      external: false     
+
+#create network
+networks: 
+   jenkins:
+      name: jenkins
+      driver: custom-driver-1
+
+services:
+  jenkins:
+    build: #build from dockerfile
+       context: .
+       dockerfile: Dockerfile.jenkins
+    image: jenkins
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    user: root
+    ports:
+      - 8082:8080
+      - 50000:50000
+    container_name: jenkins
+    networks:
+      - jenkins      
+   
+  webapp:
+    build: . #build from default dockerfile
+    image: springmvc #local image name
+    privileged: true
+    user: root
+    ports:
+      - 8081:8080
+    container_name: spring-mvc
+    networks:
+      - jenkins
+    

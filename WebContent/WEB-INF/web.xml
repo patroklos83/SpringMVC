@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	xmlns="https://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="https://xmlns.jcp.org/xml/ns/javaee https://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	id="WebApp_ID" version="3.1">
+	<display-name>Spring-Controller</display-name>
+
+	<!-- Add Spring MVC DispatcherServlet as front controller -->
+	<servlet>
+		<servlet-name>spring</servlet-name>
+		<servlet-class>
+			org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/startup-servlet.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<error-page>
+		<location>/error</location>
+	</error-page>
+
+	<!-- H2 Database Console for managing the app's database -->
+	<servlet>
+		<servlet-name>H2Console</servlet-name>
+		<servlet-class>org.h2.server.web.WebServlet</servlet-class>
+		<init-param>
+			<param-name>-webAllowOthers</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>H2Console</servlet-name>
+		<url-pattern>/admin/h2/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- Handles requests into the application -->
+
+	<servlet-mapping>
+		<servlet-name>spring</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+	<!-- Prevent Using URL Parameters for Session Tracking -->
+	<session-config>
+		<cookie-config>
+			<http-only>true</http-only>
+			<secure>true</secure>
+		</cookie-config>
+		<tracking-mode>COOKIE</tracking-mode> <!-- where to store the JSESSIONID -->
+		<session-timeout>15</session-timeout>
+	</session-config>
+
+	<!-- Filters -->
+
+
+	<listener>
+		<listener-class>com.patroclos.configuration.MyHttpSessionEventPublisher
+		</listener-class>
+	</listener>
+
+</web-app>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/jdbc 
+		http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/data/jpa 
+		http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+	    http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security-4.2.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+	<mvc:default-servlet-handler />
+
+	<mvc:annotation-driven
+		conversion-service="formattingConversionService">
+		<mvc:argument-resolvers>
+			<bean
+				class="com.patroclos.controller.core.CustomHandlerMethodArgumentResolver"
+				lazy-init="false" />
+		</mvc:argument-resolvers>
+	</mvc:annotation-driven>
+
+	<!-- Support annotation -->
+	<context:annotation-config />
+
+	<context:component-scan base-package="com.patroclos.*" />
+
+	<jpa:repositories base-package="com.patroclos.repository" />
+
+	<bean id="templateResolver"
+		class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".html" />
+		<property name="templateMode" value="HTML5" />
+	</bean>
+
+	<bean id="templateEngine"
+		class="org.thymeleaf.spring5.SpringTemplateEngine">
+		<property name="templateResolver" ref="templateResolver" />
+		<property name="additionalDialects">
+			<set>
+				<bean class="nz.net.ultraq.thymeleaf.LayoutDialect" />
+			</set>
+		</property>
+	</bean>
+
+	<bean class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+		<property name="templateEngine" ref="templateEngine" />
+	</bean>
+
+	<mvc:resources mapping="/assets/**"
+		location="/resources/assets/" />
+
+
+	<bean id="dataSource" name="dataSource"
+		class="com.zaxxer.hikari.HikariDataSource">
+		<property name="driverClassName" value="org.h2.Driver" />
+		<property name="jdbcUrl" value="jdbc:h2:file:~/data/h2db" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+		<property name="validationTimeout" value="3000" />
+		<property name="readOnly" value="false" />
+		<property name="connectionTimeout" value="60000" />
+		<property name="idleTimeout" value="60000" />
+		<property name="maxLifetime" value="60000" />
+		<property name="maximumPoolSize" value="10" />
+	</bean>
+
+	<bean id="jdbcTemplate"
+		class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<bean id="NamedParameterJdbcTemplate"
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="dataSource"></constructor-arg>
+	</bean>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.patroclos.model" />
+		<property name="jpaVendorAdapter">
+			<bean
+				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">none</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.session_factory.statement_inspector">com.patroclos.configuration.SqlCommentStatementInspector
+				</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Transactions -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory"
+			ref="entityManagerFactory" />
+	</bean>
+
+	<tx:annotation-driven
+		transaction-manager="transactionManager" />
+
+	<jdbc:initialize-database
+		data-source="dataSource">
+		<jdbc:script location="classpath:schema.sql"
+			encoding="UTF-8" />
+		<jdbc:script location="classpath:data.sql"
+			encoding="UTF-8" />
+	</jdbc:initialize-database>
+
+	<context:property-placeholder
+		location="classpath:application.properties" />
+
+	<!-- Enable Aspect Oriented Programming -->
+	<bean id="loggingAspect" class="com.patroclos.aop.LoggingAspect">
+		<!-- configure properties of aspect here as normal -->
+	</bean>
+	<bean id="traceaspect" class="com.patroclos.aop.TraceAspect">
+		<!-- configure properties of aspect here as normal -->
+	</bean>
+	<bean id="metricsaspect" class="com.patroclos.aop.MetricsAspect">
+		<!-- configure properties of aspect here as normal -->
+	</bean>
+	<aop:aspectj-autoproxy>
+		<aop:include name='loggingAspect' />
+		<aop:include name='traceaspect' />
+		<aop:include name='metricsaspect' />
+	</aop:aspectj-autoproxy>
+
+	<bean id="conversionService"
+		class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<bean
+					class="com.patroclos.configuration.converterformatter.DateStringToInstantConverter"></bean>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="formattingConversionService"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="formatters">
+			<set>
+				<bean
+					class="com.patroclos.configuration.converterformatter.InstantToStringFormatter" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

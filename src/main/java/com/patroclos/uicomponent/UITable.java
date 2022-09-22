@@ -27,9 +27,6 @@ public class UITable extends UIComponentTemplate{
 
 	@Autowired
 	private IRepository Repository;
-	@Autowired
-	private WebUtils WebUtils;
-
 	private final int PAGING_ROWS = 4;
 	public static int SUMMARY_DEFAULT_PAGING_INDEX = 1;
 	public static String SUMMARY_PAGING_MAPPING = "summaryPaging";

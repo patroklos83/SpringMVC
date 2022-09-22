@@ -13,8 +13,6 @@ public class LoggingAspect extends BaseAspect {
 	
 	@Before("within(com.patroclos.controller.summary.ArticlesController)")
 	public void logBefore(JoinPoint jp) {
-		//if (jp.getArgs() != null && jp.getArgs().length > 0)
-			//System.out.println("Accepting parameters: " + jp.getArgs()[0]);
 	}
 	
 	@Around("execution(* com.patroclos.uicomponent.UISummaryForm.draw(..))")
@@ -24,7 +22,6 @@ public class LoggingAspect extends BaseAspect {
 	
 	@Around("execution(* com.patroclos.uicomponent.UITable.*(..))")
     public Object advice(ProceedingJoinPoint joinPoint) throws Throwable {
-        //System.out.println("TestAspect.advice()");
         return joinPoint.proceed();
     }
 

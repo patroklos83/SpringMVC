@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="./screenshot.png" alt="Logo" width="80" height="80">
+    <img src="screenshot.png" alt="screenshot" width="80" height="80">
   </a>
 
   <h3 align="center">Spring MVC-Template</h3>

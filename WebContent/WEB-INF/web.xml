@@ -13,7 +13,7 @@
 		</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/startup-servlet.xml</param-value>
+			<param-value>classpath:startup-servlet.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
@@ -23,20 +23,20 @@
 	</error-page>
 
 	<!-- H2 Database Console for managing the app's database -->
-	<servlet>
-		<servlet-name>H2Console</servlet-name>
-		<servlet-class>org.h2.server.web.WebServlet</servlet-class>
-		<init-param>
-			<param-name>-webAllowOthers</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
+<!-- 	<servlet> -->
+<!-- 		<servlet-name>H2Console</servlet-name> -->
+<!-- 		<servlet-class>org.h2.server.web.WebServlet</servlet-class> -->
+<!-- 		<init-param> -->
+<!-- 			<param-name>-webAllowOthers</param-name> -->
+<!-- 			<param-value>true</param-value> -->
+<!-- 		</init-param> -->
+<!-- 		<load-on-startup>2</load-on-startup> -->
+<!-- 	</servlet> -->
 
-	<servlet-mapping>
-		<servlet-name>H2Console</servlet-name>
-		<url-pattern>/admin/h2/*</url-pattern>
-	</servlet-mapping>
+<!-- 	<servlet-mapping> -->
+<!-- 		<servlet-name>H2Console</servlet-name> -->
+<!-- 		<url-pattern>/admin/h2/*</url-pattern> -->
+<!-- 	</servlet-mapping> -->
 
 	<!-- Handles requests into the application -->
 

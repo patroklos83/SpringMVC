@@ -25,26 +25,11 @@ import com.patroclos.envers.MyEnversPreUpdateEventListener;
 
 @EnableWebMvc
 @Configuration
-@ImportResource("classpath*:/WEB-INF/startup-servlet.xml")
-//@EnableJdbcHttpSession
-//@PropertySource("classpath:application.properties")
+@ImportResource("classpath:startup-servlet.xml")
 public class ApplicationConfiguration implements WebMvcConfigurer {
 	
 	@Autowired
 	public DataSource dataSource;
-	
-//	@Bean
-//	public EmbeddedDatabase dataSource() {
-//		return new EmbeddedDatabaseBuilder() 
-//				.setType(EmbeddedDatabaseType.H2)
-//				.addScript("org/springframework/session/jdbc/schema-h2.sql")
-//				.build();
-//	}
-//
-//	@Bean
-//	public PlatformTransactionManager transactionManager(DataSource dataSource) {
-//		return new DataSourceTransactionManager(dataSource); 
-//	}
 
 	@Bean
 	@Primary
@@ -75,62 +60,5 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 	public Filter sessionFilter() {
 	    return new SessionFilter();
 	}
-
-//	@Override
-//	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-//		argumentResolvers.add(new CustomHandlerMethodArgumentResolver());
-//		argumentResolvers.add(new CustomRequestParamArgumentResolver());
-//	}
-
-	//
-	// @Bean
-	// public ViewResolver jspViewResolver() {
-	// InternalResourceViewResolver bean = new InternalResourceViewResolver();
-	// bean.setPrefix("/WEB-INF/views/");
-	// bean.setSuffix(".jsp");
-	// return bean;
-	// }
-	//
-	// @Bean
-	// public SpringResourceTemplateResolver thymeleafTemplateResolver() {
-	// SpringResourceTemplateResolver templateResolver
-	// = new SpringResourceTemplateResolver();
-	// templateResolver.setPrefix("/WEB-INF/views/");
-	// templateResolver.setSuffix(".html");
-	// templateResolver.setTemplateMode("HTML5");
-	// return templateResolver;
-	// }
-	//
-	// @Bean
-	// private ITemplateResolver htmlTemplateResolver() {
-	// SpringResourceTemplateResolver resolver = new
-	// SpringResourceTemplateResolver();
-	// resolver.setApplicationContext(applicationContext);
-	// resolver.setPrefix("/WEB-INF/views/");
-	// resolver.setCacheable(false);
-	// resolver.setTemplateMode(TemplateMode.HTML);
-	// return resolver;
-	// }
-
-	//
-	// @Override
-	// public void addResourceHandlers(ResourceHandlerRegistry registry) {
-	// registry.addResourceHandler("/assets/**")
-	// .addResourceLocations("/resources/assets/");
-	//// .setCachePeriod(31556926)
-	//// .resourceChain(true)
-	//// .addResolver(new PathResourceResolver());
-	//
-	// // Register resource handler for CSS and JS
-	// //
-	// registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/statics/",
-	// "D:/statics/")
-	// // .setCacheControl(CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic());
-	//
-	// // Register resource handler for images
-	// //
-	// registry.addResourceHandler("/assets/**").addResourceLocations("/WEB-INF/assets/")
-	// // .setCacheControl(CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic());
-	// }
 
 }

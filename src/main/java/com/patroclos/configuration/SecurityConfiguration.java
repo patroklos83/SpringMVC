@@ -11,6 +11,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +28,7 @@ import com.patroclos.security.CustomAuthenticationFailureHandler;
 import com.patroclos.security.CustomAuthenticationSuccessHandler;
 import com.patroclos.security.CustomLogoutSuccessHandler;
 
+@EnableWebSecurity
 @Configuration
 @ImportResource("classpath*:/WEB-INF/startup-servlet.xml")
 public class SecurityConfiguration {
@@ -62,20 +64,8 @@ public class SecurityConfiguration {
 		return new CustomLogoutSuccessHandler();
 	}
 
-//	@Autowired
-//	public void configureGlobal(AuthenticationManagerBuilder authenticationMgr) throws Exception {
-//		authenticationMgr.jdbcAuthentication().passwordEncoder(passwordEncoder()).dataSource(dataSource); 
-//		authenticationMgr.userDetailsService(customUserDetailService);
-//	}
-
-//	@Bean
-//	public UserDetailsManager users(DataSource dataSource) {
-//		JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-//		return users;
-//	}
-
 	@Bean("authenticationManager")
-	public AuthenticationManager authenticationManager( AuthenticationConfiguration authConfig) throws Exception {
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
 	}
 
@@ -101,8 +91,9 @@ public class SecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		http.authorizeRequests()
-		.antMatchers("/","/admin/h2/**","/h2-console/**").permitAll()
-		.antMatchers("/index**").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")//.hasRole("USER") //.access("hasRole('ROLE_USER')")
+		//.antMatchers("/","/admin/h2/**","/h2-console/**").permitAll()
+		.antMatchers("/login", "/signup", "/signupconfirm").permitAll()
+		.antMatchers("/index**").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
 		.and()
 		.formLogin().loginPage("/login").defaultSuccessUrl("/index?page=dashboard").successHandler(authenticationSuccessHandler())
 		.failureHandler(authenticationFailureHandler())
@@ -114,17 +105,11 @@ public class SecurityConfiguration {
 				.maxSessionsPreventsLogin(true) //second login will be prevented
 				)
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).sessionFixation().migrateSession(); //on authentication create a new session to avoid session fixation attack
-		//.and()
-		//.rememberMe().key("uniqueAndSecret").rememberMeParameter("remember-me").rememberMeCookieName("my-remember-me-cookie")
-		//.tokenRepository(persistentTokenRepository()).tokenValiditySeconds(60 * 60);
 
 		http.csrf();
 		http.headers().frameOptions()
 		.sameOrigin() //allow html pages inside html frames, only from same domain
 		.xssProtection().block(false); // Reflected XSS attack protection - https://wiki.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OTG-INPVAL-001)
-
-		//http.headers().contentSecurityPolicy("form-action 'self' script-src 'self' https://baeldung.com; style-src 'self';");
-
 
 		return http.build();
 	}

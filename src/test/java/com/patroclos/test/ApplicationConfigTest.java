@@ -15,19 +15,17 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@EnableWebMvc
 @Configuration
-@ImportResource("classpath*:/WEB-INF/startup-servlet.xml")
+@ImportResource("classpath:startup-servlet.xml")
 @ComponentScan(basePackages = "com.patroclos.*")
 @Profile("Test")
 public class ApplicationConfigTest implements WebMvcConfigurer {
 
 	@Bean
 	@Primary
-	public DataSource getDataSource() {
+	public DataSource getDataSource() {    
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName("org.h2.Driver");
 		//dataSource.setUrl("jdbc:h2:mem:db;DB_CLOSE_DELAY=-1");
@@ -59,11 +57,11 @@ public class ApplicationConfigTest implements WebMvcConfigurer {
 	@Primary
 	@Bean
 	public PlatformTransactionManager userTransactionManager() {
-
 		JpaTransactionManager transactionManager
 		= new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(
 				userEntityManager().getObject());
 		return transactionManager;
 	}
+	
 }

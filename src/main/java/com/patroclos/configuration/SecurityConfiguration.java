@@ -106,8 +106,10 @@ public class SecurityConfiguration {
 				)
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).sessionFixation().migrateSession(); //on authentication create a new session to avoid session fixation attack
 
-		http.csrf();
-		http.headers().frameOptions()
+		http.csrf(); // if webapp is not running in localhost, for the csrf to work, must use https
+		
+		http.headers()
+		.frameOptions()
 		.sameOrigin() //allow html pages inside html frames, only from same domain
 		.xssProtection().block(false); // Reflected XSS attack protection - https://wiki.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OTG-INPVAL-001)
 

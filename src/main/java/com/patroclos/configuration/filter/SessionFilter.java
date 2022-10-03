@@ -12,11 +12,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 @WebFilter(urlPatterns = {"/*" })
 public class SessionFilter implements Filter {
@@ -41,40 +41,43 @@ public class SessionFilter implements Filter {
 
 			if (session != null) {
 				//session.setHttpOnly(true);
-			//	session.setSecure(true);
-			//	res.addCookie(session);
+				//	session.setSecure(true);
+				//	res.addCookie(session);
 			}
 			else {
-//				request = new HttpServletRequestWrapper((HttpServletRequest) request) {
-//	                @Override
-//	                public String getRequestURI() {
-//	                    return "/login";
-//	                }
-//	            };
+				//				request = new HttpServletRequestWrapper((HttpServletRequest) request) {
+				//	                @Override
+				//	                public String getRequestURI() {
+				//	                    return "/login";
+				//	                }
+				//	            };
 			}
 		}
-		
-		
-		HttpSession currentSession = ((HttpServletRequest)request).getSession(false);
-        if(currentSession == null)
-        {
-        	// Handle cases of xhr ajax requests when session is expired
-            String ajaxHeader = ((HttpServletRequest) request).getHeader("X-Requested-With");
-            if("XMLHttpRequest".equals(ajaxHeader))
-            {
-                HttpServletResponse resp = (HttpServletResponse) response;
-                resp.sendError(901, "Session expired. Please relogin");
-            }
-            else
-            {
-                // Redirect to login page. this case is handled by Spring Security Configuration
-            }
-        }
-        else
-        {
-        	 // Redirect to login page. this case is handled by Spring Security Configuration
-        }
-		
+
+
+		HttpSession currentSession = ((HttpServletRequest)request).getSession(false);	
+		if(currentSession != null)
+		{
+			SecurityContext context = (SecurityContext) currentSession.getAttribute
+					(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+
+			if (context == null || context.getAuthentication() == null || context.getAuthentication().getPrincipal() == null)
+			{
+				// Handle cases of xhr ajax requests when session is expired
+				String ajaxHeader = ((HttpServletRequest) request).getHeader("X-Requested-With");
+				if("XMLHttpRequest".equals(ajaxHeader))
+				{
+					HttpServletResponse resp = (HttpServletResponse) response;
+					resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Session expired. Please relogin");
+				}
+				else
+				{
+					// Redirect to login page. this case is handled by Spring Security Configuration
+				}
+			}
+
+		}
+
 		chain.doFilter(req, res);
 	}
 
@@ -82,5 +85,5 @@ public class SessionFilter implements Filter {
 	public void destroy() {
 		// TODO Auto-generated method stub
 	}
-	
+
 }

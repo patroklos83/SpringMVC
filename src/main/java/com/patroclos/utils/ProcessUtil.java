@@ -10,7 +10,7 @@ public class ProcessUtil {
 	public static String getActivityProcessId() {
 		String processId = PROCESS_ID_PREFIX
 				+ DateUtil.convertDateToString(LocalDateTime.now(), "ddMMyyyy")  + "_" 
-				+ UUID.randomUUID().toString();
+				+ UUID.randomUUID().toString().replace("-", "");
 		return processId;
 	}
 

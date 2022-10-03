@@ -1,11 +1,7 @@
 package com.patroclos.controller.core;
 
-import java.util.HashMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.patroclos.configuration.converterformatter.*;
 import com.patroclos.facade.*;
 import com.patroclos.uicomponent.*;

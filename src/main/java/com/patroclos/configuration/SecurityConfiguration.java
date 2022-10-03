@@ -93,7 +93,7 @@ public class SecurityConfiguration {
 		http.authorizeRequests()
 		//.antMatchers("/","/admin/h2/**","/h2-console/**").permitAll()
 		.antMatchers("/login", "/signup", "/signupconfirm").permitAll()
-		.antMatchers("/index**").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+		.antMatchers("/**", "/index**").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
 		.and()
 		.formLogin().loginPage("/login").defaultSuccessUrl("/index?page=dashboard").successHandler(authenticationSuccessHandler())
 		.failureHandler(authenticationFailureHandler())
@@ -105,7 +105,7 @@ public class SecurityConfiguration {
 				.maxSessionsPreventsLogin(true) //second login will be prevented
 				)
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).sessionFixation().migrateSession(); //on authentication create a new session to avoid session fixation attack
-
+ 
 		http.csrf(); // if webapp is not running in localhost, for the csrf to work, must use https
 		
 		http.headers()

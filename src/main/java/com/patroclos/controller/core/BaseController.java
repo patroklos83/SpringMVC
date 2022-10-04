@@ -25,7 +25,7 @@ public class BaseController {
 	@Autowired
 	protected UIInput UIInput;
 	@Autowired
-	protected UISummaryForm UIForm;
+	protected UISummaryForm UISummaryForm;
 	@Autowired
 	protected UILayoutForm UILayoutForm;
 	

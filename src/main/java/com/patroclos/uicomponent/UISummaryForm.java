@@ -15,56 +15,22 @@ public class UISummaryForm extends UILayoutForm {
 	protected UIInput UIInput;
 	@Autowired
 	protected UIButton UIButton;
-	
-	public String draw(String postBackUrl, String postBackActionLabel, List<Input> inputs) {	
-		return draw(postBackUrl, postBackActionLabel, inputs, null);
-	}
 
-	public String draw(String postBackUrl, String postBackActionLabel, List<Input> inputs, String updateHtmlComponentId) {
-		
-		if (postBackActionLabel == null) {
-			postBackActionLabel = "DefaultLabel";
-		}
-		
-		if (postBackUrl == null) {
-			throw new SystemException("postBackUrl not defined");
-		}
-		
+	public String draw(List<Input> inputs) {				
 		StringBuilder inputHtml = new StringBuilder();
-		String formId = getComponentId();
-		
-		inputHtml.append("<form id='?formid' class=\"form-inline\" method='POST' action='"+ postBackUrl +"'>");
-		
-		
+
 		for (Input input: inputs) {	
 			String layoutComponentForm = drawLayoutFormField(input.getName());
 			String layoutComponentFormHtml = layoutComponentForm.replace("?formComponent", input.getHtml());
 			inputHtml.append(layoutComponentFormHtml);
 		};
 		
-		String buttonSearchHtml = UIButton.draw(postBackActionLabel);
+		String buttonSearchHtml = UIButton.draw("Search");
 		String layoutButtonForm = drawLayoutFormField("", false, com.patroclos.uicomponent.UILayoutForm.ComponentAlignment.VERTICAL);
-		String formButtonSearchHtml = layoutButtonForm.replace("?formComponent", buttonSearchHtml);
-				
-		inputHtml.append(formButtonSearchHtml
-				+ "         </form>"
-				+ "<script>"
-		        + "$(document).ready(function(){\r\n"
-		        + "    $(\"#?formid\").on(\"submit\", function(event){\r\n"
-		        + "        event.preventDefault();\r\n"
-		        + " \r\n"
-		        + "        var formValues= $(this).serialize();\r\n"
-		        + " executeProcess('"+ postBackUrl +"', formValues, false, '#?id'); "
-		        + "    });\r\n"
-		        + "});\r\n"
-		        + "\r\n"
-		        + "</script>");
-		
-		String formHtml = inputHtml.toString().replace("?id", updateHtmlComponentId != null ? updateHtmlComponentId : "dynamic_content" );
-		formHtml = formHtml.replace("?formid", formId);      	
-		
-		
-		return wrapInCard(formHtml);
+		String formButtonSearchHtml = layoutButtonForm.replace("?formComponent", buttonSearchHtml);				
+		inputHtml.append(formButtonSearchHtml);
+
+		return wrapInCard(inputHtml.toString());
 	}
 
 

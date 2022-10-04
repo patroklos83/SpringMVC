@@ -1,60 +1,76 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{main/masterlayout.html}">>
+	layout:decorate="~{main/masterlayout.html}">
+>
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
 <body>
-	<section layout:fragment="childpage" style="padding: 20px 50px 20px 50px">
+	<section layout:fragment="childpage"
+		style="padding: 20px 50px 20px 50px">
 
-	<div th:if="${showWholeSummaryPage}" class="page-header flex-wrap"
-		style="min-width: 50vw; margin-top: 20px">
-		<h1 class="mb-0">
-			<span class="pl-0 h6 pl-sm-2 text-muted d-inline-block">[(${pagetitle})]</span>
-		</h1>
-		<h3 class="mb-0">
-			<span class="pl-0 h6 pl-sm-2 text-muted d-inline-block"></span>
-		</h3>
-		<div class="d-flex" style="float: right">
-			<div th:if="${actionslist != null && actionslist.size() > 0}"
-				class="actionlist dropdown show" th:fragment="actionlist"
-				id="actions-block">
+		<div th:if="${showWholeSummaryPage}" class="page-header flex-wrap"
+			style="min-width: 50vw; margin-top: 20px">
+			<h1 class="mb-0">
+				<span class="pl-0 h6 pl-sm-2 text-muted d-inline-block">[(${pagetitle})]</span>
+			</h1>
+			<h3 class="mb-0">
+				<span class="pl-0 h6 pl-sm-2 text-muted d-inline-block"></span>
+			</h3>
+			<div class="d-flex" style="float: right">
+				<div th:if="${actionslist != null && actionslist.size() > 0}"
+					class="actionlist dropdown show" th:fragment="actionlist"
+					id="actions-block">
 
-				<div class="dropdown">
-					<a class="btn btn-success dropdown-toggle" href="#" role="button"
-						id="dropdownMenuLink" data-bs-toggle="dropdown"
-						aria-expanded="false"> Actions </a>
+					<div class="dropdown">
+						<a class="btn btn-success dropdown-toggle" href="#" role="button"
+							id="dropdownMenuLink" data-bs-toggle="dropdown"
+							aria-expanded="false"> Actions </a>
 
-					<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink"
-						th:each="a:${actionslist}">
-						<li>
-							<div th:unless="${a.executeFromJavascript}">
-								<a th:href="${{a.action}}" th:text="${a.description}"
-									class="dropdown-item"></a>
-							</div>
-							<div th:if="${a.executeFromJavascript}">
-								<button th:attr="onclick=${{a.action}}"
-									th:text="${a.description}" class="dropdown-item"></button>
-							</div>
-						</li>
-					</ul>
+						<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink"
+							th:each="a:${actionslist}">
+							<li>
+								<div th:unless="${a.executeFromJavascript}">
+									<a th:href="${{a.action}}" th:text="${a.description}"
+										class="dropdown-item"></a>
+								</div>
+								<div th:if="${a.executeFromJavascript}">
+									<button th:attr="onclick=${{a.action}}"
+										th:text="${a.description}" class="dropdown-item"></button>
+								</div>
+							</li>
+						</ul>
+					</div>
+
 				</div>
 
 			</div>
-
 		</div>
-	</div>
 
-	<div style="text-align: center; margin-top: 80px">
-		<div>[(${filterForm})]</div>
-		<div class="summaryTable" id="summaryTable">[(${summaryTable})]</div>
-	</div>
-	
-	<section layout:fragment="content">
-		<p>Page content goes here</p>
-	</section>
-	
+		<div style="text-align: center; margin-top: 80px">
+			<form th:id='${formId}' class="form-inline" method='POST' action="">
+				<div>[(${filterForm})]</div>
+			</form>
+			<script>
+				$(document).ready(
+						function() {
+							$('#[[${formId}]]').on("submit",
+									function(event) {
+										event.preventDefault();
+										var formValues = $(this).serialize();
+										executeProcess('[[${searchPathUrl}]]',
+												formValues, false, '#summaryTable');
+									});
+						});
+			</script>
+			<div class="summaryTable" id="summaryTable">[(${summaryTable})]</div>
+		</div>
+
+		<section layout:fragment="content">
+			<p>Page content goes here</p>
+		</section>
+
 	</section>
 </body>
 </html>

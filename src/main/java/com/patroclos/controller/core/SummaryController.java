@@ -8,8 +8,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.patroclos.uicomponent.UIInput.Input;
@@ -41,10 +39,13 @@ public abstract class SummaryController extends BaseController {
 
 		var inputFilters = getInputFilters();
 		boolean isForExpandableRow = false;
-		if (inputFilters != null && inputFilters.size() > 0) {
-			String formHtml = UIForm.draw(searchPathUrl, "Search",
-					getInputFilters().values().stream().collect(Collectors.toList()), "summaryTable");
+		if (inputFilters != null && inputFilters.size() > 0) {	
+			String formId = UISummaryForm.getComponentId();			
+			String formHtml = UISummaryForm.draw(getInputFilters().values().stream().collect(Collectors.toList()));
+			
 			model.addAttribute("filterForm", formHtml);
+			model.addAttribute("formId", formId);
+			model.addAttribute("searchPathUrl", searchPathUrl);
 		}
 		else {
 			isForExpandableRow = id != null ? true : false;

@@ -33,7 +33,7 @@ public class UISummaryForm extends UILayoutForm {
 		StringBuilder inputHtml = new StringBuilder();
 		String formId = getComponentId();
 		
-		inputHtml.append("<form id='?formid' class=\"form-inline\" style='width:100vw' method='POST' action='"+ postBackUrl +"'>");
+		inputHtml.append("<form id='?formid' class=\"form-inline\" method='POST' action='"+ postBackUrl +"'>");
 		
 		
 		for (Input input: inputs) {	

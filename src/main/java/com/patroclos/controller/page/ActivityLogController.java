@@ -71,6 +71,11 @@ public class ActivityLogController extends PageController{
 
 			model.addAttribute("activitylogrevisionauditForm", htmlPageComponentsForm.toString());
 		}
+		else
+		{
+			model.addAttribute("pagetitle", "No revisions found to compare data changes");
+		}
+		
 		return "/pages/activitylog";
 	}
 

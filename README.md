@@ -16,11 +16,11 @@
     <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    <a href="https://github.com/patroklos83/SpringMVC/">View Demo</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
+    <a href="https://github.com/patroklos83/SpringMVC/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/patroklos83/SpringMVC/issues">Request Feature</a>
   </p>
 </div>
 
@@ -75,6 +75,7 @@ Use the `BLANK_README.md` to get started.
 
 ### Built With
 
+* [![Spring][spring-shield]][contributors-url]
 * [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 * [![JQuery][JQuery.com]][JQuery-url]
 
@@ -98,7 +99,8 @@ To get a local copy up and running follow these simple example steps.
 
 Use maven wrapper to build the web app war file
 
-1. mvnw.cmd clean package
+* mvnw.cmd clean package (windows)
+*./mvnw clean package (linux)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

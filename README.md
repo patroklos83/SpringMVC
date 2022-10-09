@@ -75,9 +75,9 @@ Use the `BLANK_README.md` to get started.
 
 ### Built With
 
-* [![Spring][spring-shield]][contributors-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![Spring][spring-shield]][contributors-url] version 5.3.20
+* [![Bootstrap][Bootstrap.com]][Bootstrap-url] version 5.1.3
+* [![JQuery][JQuery.com]][JQuery-url] version 3.6.0
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -100,7 +100,7 @@ To get a local copy up and running follow these simple example steps.
 Use maven wrapper to build the web app war file
 
 * mvnw.cmd clean package (windows)
-*./mvnw clean package (linux)
+* ./mvnw clean package (linux)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

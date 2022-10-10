@@ -61,7 +61,7 @@ Basic Features
 * Audit logging
 * Sample 'Article' Entity for demo
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue.
+No template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -85,17 +85,6 @@ Use maven wrapper to build the web app war file
 
 * mvnw.cmd clean package (windows)
 * ./mvnw clean package (linux)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

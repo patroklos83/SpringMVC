@@ -20,7 +20,6 @@ import com.patroclos.uicomponent.core.ColumnDefinitionType;
 import com.patroclos.uicomponent.core.DbFieldType;
 import com.patroclos.uicomponent.core.Table;
 import com.patroclos.utils.DateUtil;
-import com.patroclos.utils.WebUtils;
 
 @Component
 public class UITable extends UIComponentTemplate{
@@ -32,29 +31,19 @@ public class UITable extends UIComponentTemplate{
 	public static String SUMMARY_PAGING_MAPPING = "summaryPaging";
 	private static int MAX_NUMBER_OF_PAGING_BUTTONS = 7;
 
-	public Table draw(Table table) {
-		try
-		{
-			return drawTable(table, null);
-		}
-		catch (Exception e)
-		{
-			throw new SystemException(e);
-		}
+	public Table draw(Table table) throws Exception {
+		return drawTable(table, null);
 	}
 
-	public Table draw(Table table, Map<String,String> searchParams) {
-		try
-		{
-			return drawTable(table, searchParams);
-		}
-		catch (Exception e)
-		{
-			throw new SystemException(e);
-		}
+	public Table draw(Table table, Map<String,String> searchParams) throws Exception {
+		return drawTable(table, searchParams);
 	}
 
 	private Table drawTable(Table table, Map<String,String> searchParams) throws Exception {
+
+		SqlRowSet resultSet = null;
+		boolean isFromPagingAction = false;
+
 		if (table == null) {
 			throw new SystemException("No Table object provided!");
 		}
@@ -67,31 +56,20 @@ public class UITable extends UIComponentTemplate{
 			throw new SystemException("No tableId provided!");
 		}
 
-		SqlRowSet resultSet = null;
-		boolean isFromPagingAction = false;
-
-	//	int selectedPagingIndex = SUMMARY_DEFAULT_PAGING_INDEX;
 		if (table.getSqlRowSet() != null) {
 			resultSet = table.getSqlRowSet();
-//			if (table.getPagingParams() != null)
-//				selectedPagingIndex = Integer.parseInt(
-//						table.getPagingParams().entrySet().stream()
-//						.filter(k -> k.toString().startsWith("summarySelectedIndex"))
-//						.findFirst().get().getValue());
 			isFromPagingAction = true;
-		}else
+		}
+		else
 		{	
-			//set expandable row foreign-link parameter first
+
 			MapSqlParameterSource sqlParams = new MapSqlParameterSource();
 			if (table.getColumnDefinitions() != null && table.getColumnDefinitions().size() > 0) {					
-				var expandableRowsDefinitions = table.getColumnDefinitions().values().stream().filter(c -> c.getType() == ColumnDefinitionType.EXPANDABLE_ROW
-						&& c.getValue() != null).collect(Collectors.toList());
-
-				if (expandableRowsDefinitions != null && expandableRowsDefinitions.size() > 0) {
-					for(var colDef : expandableRowsDefinitions) {
+				var rowsDefinitionValues = table.getColumnDefinitions().values().stream().filter(c -> c.getValue() != null).collect(Collectors.toList());
+				if (rowsDefinitionValues != null)
+					for(var colDef : rowsDefinitionValues) {
 						sqlParams.addValue(colDef.getColumnDbName().toUpperCase(), colDef.getValue().toString());
 					}
-				}
 			}
 
 			StringBuilder sql = new StringBuilder();
@@ -115,8 +93,6 @@ public class UITable extends UIComponentTemplate{
 		}
 
 		tableHtml = tableHtml.replace("?id", id);		
-		//String baseUrl = WebUtils.getBaseUrl();
-		//tableHtml = tableHtml.replace("?pagingUrl", baseUrl + "/" + table.getPagingUrl());
 		tableHtml = tableHtml.replace("?pagingUrl", table.getPagingUrl());
 		table.setHtml(tableHtml);
 		table.setId(id);
@@ -149,7 +125,6 @@ public class UITable extends UIComponentTemplate{
 				if (paramKey != null){
 					if (paramEntry.getValue() != null){
 						if (paramEntry.getValue().trim() != ""){
-
 
 							String paramKeyDate = paramKey;
 							if (paramKeyDate.endsWith(UIInput.DATETIME_FROM_NAME_SUFFIX))
@@ -269,16 +244,13 @@ public class UITable extends UIComponentTemplate{
 			rowsToDisplay++;
 
 			tableRows.append("<tr class='accordion-toggle visiblerow'>");
-			
+
 			int count = m.getColumnCount();
 			for(int i = 1; i<=count; i++) {
 				String columnName = m.getColumnLabel(i);
 				tableRows.append(setColumnValue(columnName, resultSet, columnDefinitions));
 			}
-//			for(String columnName : m.getColumnNames())
-//			{		
-//				tableRows.append(setColumnValue(columnName, resultSet, columnDefinitions));
-//			}
+
 			tableRows.append("</tr>");
 
 			//always add extra hidden row for adding expandable row nested table
@@ -344,13 +316,8 @@ public class UITable extends UIComponentTemplate{
 						+ "          .closest('tr')\r\n"
 						+ "          .next('.hiddenRow')"
 						+ "          .find('.divExpandableRow'); \n"
-						+ "        if (!thisButton.parents('tr').closest('tr').next('.hiddenRow').is(':visible')){ \n"
-						
-						+ "        executeProcess('" + columnDef.getExpandableRowActionLink().replace("?id", value.toString()) + "', null, false, divExpandable);"
-						
-						//+ "        $.post('"+ columnDef.getExpandableRowActionLink().replace("?id", value.toString()) +"', '', function(data){\r\n"	                           
-						//+ "         divExpandable.html(data); \n"
-						//+ "        });\r\n"
+						+ "        if (!thisButton.parents('tr').closest('tr').next('.hiddenRow').is(':visible')){ \n"		
+						+ "        executeProcess('" + columnDef.getExpandableRowActionLink().replace("?id", value.toString()) + "', null, false, divExpandable);"						
 						+ "} \n"
 						+ " else \n"
 						+ "{ \n"
@@ -424,7 +391,7 @@ public class UITable extends UIComponentTemplate{
 				"  <ul class=\"pagination\">\r\n" + 
 				"     <li class=\"page-item ?prvClass\"><button class=\"page-link\" tabindex='-1' onclick='sendPaging_?pagingMethodUniqueId(?previousIndex, 0)'>Previous</button></li>\r\n");
 
-		
+
 		int startPagingIndex = SUMMARY_DEFAULT_PAGING_INDEX;
 		// Reformat paging selector (Previous, ..., 1,2,3,4,5, ..., Next) 
 		// to start from the new start index, like (Previous, ..., 6,7,8,9, ..., Next)
@@ -448,7 +415,7 @@ public class UITable extends UIComponentTemplate{
 			// Button Next clicked when Start index > 1 like (Previous, ..., 9, 10, 11, 12, ..., Next)
 			startPagingIndex = selectedStartPagingIndex;
 		}
-		
+
 		// if start index > 1, that is (Previous, ..., 9, 10, 11, 12, ..., Next)
 		// add a left (...) button, after Previous button
 		if (startPagingIndex > 1)
@@ -458,7 +425,7 @@ public class UITable extends UIComponentTemplate{
 			paginationLink = paginationLink.replace("?active", "");
 			sb.append(paginationLink);
 		}
-		
+
 		int endPagingIndex = startPagingIndex - 1;
 
 		int counter = 0;
@@ -504,10 +471,6 @@ public class UITable extends UIComponentTemplate{
 				+ "        var formValues= $('#summaryNavForm_?pagingUniqueId').serialize();\r\n"
 				+ "        console.log('calling paging url: ?pagingUrl');"
 				+ "        executeProcess('?pagingUrl', formValues, false, '#?id');"
-				
-				//+ "        $.post('?pagingUrl', formValues, function(data){\r\n"
-				//+ "             $('#?id').html(data);\r\n"
-				//+ "        })"
 				+ "    });\r\n"
 				+ "});\r\n"
 				+ "\r\n"

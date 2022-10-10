@@ -48,7 +48,7 @@ public class ActivityLogsController extends SummaryController{
 				+ ",clientip, activitylog.processid as process_id\r\n"
 				+ " from activitylog\r\n"
 				+ " left join users on users.id = activitylog.createdby\r\n"
-				+ " where activitylog.isdeleted = 0"
+				+ " where activitylog.isdeleted = 0 and users.id = :users.id"
 				+ " order by activitylog.id desc";
 		
 		Map<String, ColumnDefinition> columnDefinitions = new HashMap<String, ColumnDefinition>();
@@ -58,6 +58,11 @@ public class ActivityLogsController extends SummaryController{
 		processIdDef.setColumnAlias("Entities Affected");
 		processIdDef.setExpandableRowActionLink("activitylogdetails/?id");
 		columnDefinitions.put(processIdDef.getColumnDbName(), processIdDef);
+		
+		ColumnDefinition userIdDef = new ColumnDefinition();
+		userIdDef.setColumnDbName("users.id");
+		userIdDef.setValue(AuthenticationFacade.getLoggedUser().getId());
+		columnDefinitions.put(userIdDef.getColumnDbName(), userIdDef);
 		
 		Table table = Table.Builder.newInstance()
 				.setTableId("activitylogTable")
@@ -74,7 +79,7 @@ public class ActivityLogsController extends SummaryController{
 	@ResponseBody
 	public String summaryTablePaging (
 			@RequestParam Map<String,String> pagingParams, 
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return super.summaryTablePaging(pagingParams, model);
 	}
 

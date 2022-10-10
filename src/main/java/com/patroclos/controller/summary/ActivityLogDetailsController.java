@@ -84,7 +84,7 @@ public class ActivityLogDetailsController extends SummaryController{
 	@ResponseBody
 	public String summaryTablePaging (
 			@RequestParam Map<String,String> pagingParams, 
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return super.summaryTablePaging(pagingParams, model);
 	}
 

@@ -74,7 +74,7 @@ public abstract class SummaryController extends BaseController {
 
 	public String summaryTablePaging (
 			@RequestParam Map<String,String> pagingParams, 
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		Table table = (Table)DataHolder.getDataFromMap(pagingParams.entrySet().stream()
 				.filter(k -> k.toString().startsWith("summaryHash"))
 				.findFirst().get().getValue());

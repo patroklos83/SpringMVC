@@ -13,10 +13,10 @@
   <p align="center">
     An awesome Spring MVC template!
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+   <!-- <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a> -->
     <br />
     <br />
-    <a href="https://github.com/patroklos83/SpringMVC/">View Demo</a>
+    <!-- <a href="https://github.com/patroklos83/SpringMVC/">View Demo</a> -->
     ·
     <a href="https://github.com/patroklos83/SpringMVC/issues">Report Bug</a>
     ·

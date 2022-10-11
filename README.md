@@ -54,12 +54,12 @@ This is a basic Spring MVC web application template which demonstrates basic fun
 
 Basic Features
 
-* Demonstrates simple clean architecture using Domain Driven Design
-* Making use of Facade design pattern
+* Simple clean architecture using Domain Driven Design
+* Use of Facade design pattern
 * Strategy desing pattern is used as a Process wrapper
 * Authentication and Authorization
 * Audit logging
-* Sample 'Article' Entity for demo
+* Sample 'Article' Entity with CRUD operations
 
 No template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue.
 

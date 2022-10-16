@@ -86,7 +86,9 @@ Use maven wrapper to build the web app war file
 * mvnw.cmd clean package (windows)
 * ./mvnw clean package (linux)
 
-entrypoint URL: localhost:8008/SpringMVC/
+Add the war file in the Tomcat /webapps folder
+
+entrypoint URL: localhost:8080/SpringMVC/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

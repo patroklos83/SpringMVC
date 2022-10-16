@@ -1,14 +1,10 @@
 package com.patroclos.model;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 
 @MappedSuperclass

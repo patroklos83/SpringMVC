@@ -7,9 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RevisionEntity;
 
 @Audited
 @Entity

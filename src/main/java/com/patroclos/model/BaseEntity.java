@@ -14,14 +14,10 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.NotAudited;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @MappedSuperclass
 public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
@@ -35,7 +31,6 @@ public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
 	@NotAudited
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "createdBy", updatable = false)
-	//@Column(name = "createdBy")
 	private User createdByuser;
 
 	@Audited
@@ -43,11 +38,10 @@ public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
     @Column(name = "createdDate", updatable = false)
 	private Instant createdDate;
 	
-//	@LastModifiedBy
+    //@LastModifiedBy
 	@NotAudited
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "lastModifiedBy")
-	//@Column(name = "lastModifiedBy")
 	private User lastUpdatedByuser;
 
 	@Audited
@@ -60,7 +54,7 @@ public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
 	@Version
 	private Long version;
 
-	@Transient //always use javax.persistence.Transient
+	@Transient
 	private boolean isNew = true; 
 
 	@Override

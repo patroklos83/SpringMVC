@@ -24,17 +24,17 @@ public class CRUDService extends BaseService {
 	@Autowired
 	private ActivityLogDetailBO ActivityLogDetailsBO;	
 	@Autowired
-    ConfigurableApplicationContext applicationContext;
+    private ConfigurableApplicationContext ApplicationContext;
 
 	private BaseBO getBussinessBeanFromDTO(BaseDTO input) throws BeansException, ClassNotFoundException {
 		var businessClass = BUSINESS_PACKAGE + input.getClass().getSimpleName().replace("DTO", "BO");
-		BaseBO baseBo = (BaseBO) applicationContext.getBean(Class.forName(businessClass));
+		BaseBO baseBo = (BaseBO) ApplicationContext.getBean(Class.forName(businessClass));
 		return baseBo;
 	}
 	
 	private BaseBO getBussinessBeanFromClassType(Class<?> classType) throws BeansException, ClassNotFoundException {
 		var businessClass = BUSINESS_PACKAGE + classType.getSimpleName().replace("DTO", "BO");
-		BaseBO baseBo = (BaseBO) applicationContext.getBean(Class.forName(businessClass));
+		BaseBO baseBo = (BaseBO) ApplicationContext.getBean(Class.forName(businessClass));
 		return baseBo;
 	}
 

@@ -48,6 +48,8 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
+localhost:8080/SpringMVC/
+
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 This is a basic Spring MVC web application template which demonstrates basic functionality of an admin backoffice system

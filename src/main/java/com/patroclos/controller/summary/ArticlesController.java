@@ -5,28 +5,17 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.patroclos.controller.core.BaseController;
 import com.patroclos.controller.core.SummaryController;
-import com.patroclos.model.Article;
 import com.patroclos.uicomponent.UIInputType;
 import com.patroclos.uicomponent.UIInput.Input;
 import com.patroclos.uicomponent.core.Action;
@@ -36,7 +25,7 @@ import com.patroclos.uicomponent.core.DbFieldType;
 import com.patroclos.uicomponent.core.Table;
 
 @Controller
-public class ArticlesController extends SummaryController{
+public class ArticlesController extends SummaryController {
 
 	@RequestMapping(value="/articles",method=RequestMethod.POST)
 	public String getPageForm(@RequestParam Map<String,String> searchFilterParams, ModelMap model) throws Exception {       	

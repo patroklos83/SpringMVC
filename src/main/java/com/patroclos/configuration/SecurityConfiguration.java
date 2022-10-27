@@ -91,7 +91,6 @@ public class SecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		http.authorizeRequests()
-		//.antMatchers("/","/admin/h2/**","/h2-console/**").permitAll()
 		.antMatchers("/login", "/signup", "/signupconfirm").permitAll()
 		.antMatchers("/**", "/index**").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
 		.and()

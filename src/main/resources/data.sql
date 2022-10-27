@@ -3,6 +3,7 @@
 INSERT INTO ARTICLES (Id, title, category, author, summary, createdBy, createdDate, lastModifiedBy, lastModifiedDate, version) 
 VALUES (1, 'Java Concurrency', 'Java', NULL, 'Sample article summary text bla bla bla ....', 2, CURRENT_TIMESTAMP(), NULL, CURRENT_TIMESTAMP(), 0);
 
+/*
 INSERT INTO ARTICLES (Id, title, category, author, summary, createdBy, createdDate, lastModifiedBy, lastModifiedDate, version) 
 VALUES (2, 'Java Concurrency', 'Java', NULL, 'Sample article summary text bla bla bla ....', 2, CURRENT_TIMESTAMP(), NULL, CURRENT_TIMESTAMP(), 0);
 
@@ -29,7 +30,7 @@ VALUES (9, 'Java Concurrency', 'Java', NULL, 'Sample article summary text bla bl
 
 INSERT INTO ARTICLES (Id, title, category, author, summary, createdBy, createdDate, lastModifiedBy, lastModifiedDate, version) 
 VALUES (10, 'Java Concurrency', 'Java', NULL, 'Sample article summary text bla bla bla ....', 2, CURRENT_TIMESTAMP(), NULL, CURRENT_TIMESTAMP(), 0);
-
+*/
 --INSERT INTO GLOBAL_USERS (created)
 --values (SYSDATE);
 

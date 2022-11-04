@@ -38,7 +38,7 @@ VALUES (10, 'Java Concurrency', 'Java', NULL, 'Sample article summary text bla b
 INSERT INTO users (id, username, password, passwordExpirationDate, enabled, createdDate, lastModifiedDate, version)
   values (1,'anonymousUser',
     '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a',
-    DATEADD(DAY, 1, current_timestamp()), 1, current_timestamp(), current_timestamp(), 0);
+    DATEADD(DAY, 1000, current_timestamp()), 1, current_timestamp(), current_timestamp(), 0);
 
 -- User user/pass
 INSERT INTO users (id, username, password, passwordExpirationDate, enabled, createdDate, lastModifiedDate, version)

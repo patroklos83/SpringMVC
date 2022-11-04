@@ -57,7 +57,7 @@ public class ProcessManager implements IProcessManager {
 //			throw new SystemException("Process authorization failed. User has no access to the processes. No ROLE_USER found");
 //		}		
 		var authorities = UserService.getUserAuthorities(loggedUser);
-		if (authorities == null) {
+		if (authorities == null || authorities.size() == 0) {
 			throw new SystemException("Process authorization failed. No access permissions found");
 		}		
 		var authoritiesList = authorities.stream().map(a -> a.getAuthority()).collect(Collectors.toList());

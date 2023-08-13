@@ -1,8 +1,6 @@
 package com.patroclos.model;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import jakarta.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RevisionNumber;

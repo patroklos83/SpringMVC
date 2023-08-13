@@ -30,6 +30,10 @@
 
 	<mvc:default-servlet-handler />
 
+	<!-- <mvc:annotation-driven -->
+	<!-- conversion-service="formattingConversionService"> -->
+	<!-- </mvc:annotation-driven> -->
+
 	<mvc:annotation-driven
 		conversion-service="formattingConversionService">
 		<mvc:argument-resolvers>
@@ -46,26 +50,37 @@
 
 	<jpa:repositories base-package="com.patroclos.repository" />
 
-	<bean id="templateResolver"
-		class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
-		<property name="prefix" value="/WEB-INF/views/" />
-		<property name="suffix" value=".html" />
-		<property name="templateMode" value="HTML5" />
-	</bean>
+	<!-- <bean id="viewResolver" -->
+	<!-- class="org.springframework.web.servlet.view.UrlBasedViewResolver"> -->
+	<!-- <property name="viewClass" -->
+	<!-- value="org.springframework.web.servlet.view.JstlView" /> -->
+	<!-- <property name="prefix" value="/WEB-INF/views/" /> -->
+	<!-- <property name="suffix" value=".jsp" /> -->
+	<!-- </bean> -->
 
-	<bean id="templateEngine"
-		class="org.thymeleaf.spring5.SpringTemplateEngine">
-		<property name="templateResolver" ref="templateResolver" />
-		<property name="additionalDialects">
-			<set>
-				<bean class="nz.net.ultraq.thymeleaf.LayoutDialect" />
-			</set>
-		</property>
-	</bean>
+<!-- 	<bean id="ModelMapper" class="org.modelmapper.ModelMapper"> -->
+<!-- 	</bean> -->
 
-	<bean class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
-		<property name="templateEngine" ref="templateEngine" />
-	</bean>
+<!-- 	<bean id="templateResolver" -->
+<!-- 		class="org.thymeleaf.templateresolver.ServletContextTemplateResolver" > -->
+<!-- 		<property name="prefix" value="/WEB-INF/views/" /> -->
+<!-- 		<property name="suffix" value=".html" /> -->
+<!-- 		<property name="templateMode" value="HTML5" /> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean id="templateEngine" -->
+<!-- 		class="org.thymeleaf.spring6.SpringTemplateEngine"> -->
+<!-- 		<property name="templateResolver" ref="templateResolver" /> -->
+<!-- 		<property name="additionalDialects"> -->
+<!-- 			<set> -->
+<!-- 				<bean class="nz.net.ultraq.thymeleaf.LayoutDialect" /> -->
+<!-- 			</set> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean class="org.thymeleaf.spring6.view.ThymeleafViewResolver"> -->
+<!-- 		<property name="templateEngine" ref="templateEngine" /> -->
+<!-- 	</bean> -->
 
 	<mvc:resources mapping="/assets/**"
 		location="/resources/assets/" />
@@ -74,7 +89,7 @@
 	<bean id="dataSource" name="dataSource"
 		class="com.zaxxer.hikari.HikariDataSource">
 		<property name="driverClassName" value="org.h2.Driver" />
-		<property name="jdbcUrl" value="jdbc:h2:file:~/data/h2db" />
+		<property name="jdbcUrl" value="jdbc:h2:file:~/data/h2db3" />
 		<property name="username" value="sa" />
 		<property name="password" value="" />
 		<property name="validationTimeout" value="3000" />
@@ -108,11 +123,18 @@
 				<prop key="hibernate.hbm2ddl.auto">none</prop>
 				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.max_fetch_depth">1</prop>
 				<prop key="hibernate.session_factory.statement_inspector">com.patroclos.configuration.SqlCommentStatementInspector
-				</prop>
+			    </prop>
+			    <prop key="hibernate.enable_lazy_load_no_trans">true</prop>
 			</props>
 		</property>
 	</bean>
+
+	<!-- <bean id="transactionManager" -->
+	<!-- class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> -->
+	<!-- <property name="dataSource" ref="dataSource" /> -->
+	<!-- </bean> -->
 
 	<!-- Transactions -->
 	<bean id="transactionManager"
@@ -124,6 +146,13 @@
 	<tx:annotation-driven
 		transaction-manager="transactionManager" />
 
+	<!-- <jdbc:embedded-database id="dataSource" -->
+	<!-- type="H2"> -->
+	<!-- <jdbc:script location="classpath:schema.sql" /> -->
+	<!-- <jdbc:script location="classpath:data.sql" /> -->
+	<!-- </jdbc:embedded-database> -->
+
+<!-- disabled the recreation of db schema/data -->
 	<jdbc:initialize-database
 		data-source="dataSource">
 		<jdbc:script location="classpath:schema.sql"
@@ -170,5 +199,18 @@
 			</set>
 		</property>
 	</bean>
+
+	<!-- <bean -->
+	<!-- class="org.springframework.beans.factory.config.CustomEditorConfigurer"> -->
+	<!-- <property name="customEditors"> -->
+	<!-- <map> -->
+	<!-- <entry key="java.time.Instant"> -->
+	<!-- <bean class="com.patroclos.controller.core.StringToInstantEditor"> -->
+	<!-- <property name="format" value="upperCase" /> -->
+	<!-- </bean> -->
+	<!-- </entry> -->
+	<!-- </map> -->
+	<!-- </property> -->
+	<!-- </bean> -->
 
 </beans>

@@ -4,6 +4,25 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{loginlayout.html}">
 <head>
+
+<script>
+ function toggleShowPassword() {
+	  var x = document.getElementById("password");
+	  if (x.type === "password") {
+	    x.type = "text";
+	  } else {
+	    x.type = "password";
+	  }
+	  
+	  var y = document.getElementById("passwordconfirm");
+	  if (y.type === "password") {
+	    y.type = "text";
+	  } else {
+	    y.type = "password";
+	  }
+ }	
+</script>
+
 </head>
 <body onload='document.login.username.focus();'>
 
@@ -22,25 +41,25 @@
 					<div>[(${error})]</div>
 					<form name='signupconfirm' action='signupconfirm' method='POST'>
 						<div class="form-group">
-							<input type="text" id="username"
+							 <label class="form-label" for="username">Username</label>
+							 <input type="text" id="username"
 								name="username" class="form-control" placeholder="username" />
-							<label class="form-label" for="username">Username</label>
 						</div>
+						<br/>
 						<div class="form-group">
-							<input type="password" id="password" name="password"
-								class="form-control"/> <label class="form-label"
-								for="password">Password</label>
+						    <label class="form-label" for="password">Password</label>		
+							<input type="password" id="password" name="password" class="form-control" />						
 						</div>
+						<br/>
 						<div class="form-group">
-							<input type="password" id="passwordconfirm"
-								name="passwordconfirm" class="form-control" /> <label
-								class="form-label" for="passwordconfirm">Confirm
-								Password</label>
+						    <label class="form-label" for="passwordconfirm">Confirm Password</label>		
+							<input type="password" id="passwordconfirm" name="passwordconfirm" class="form-control" />
+							<input type="checkbox" onclick="toggleShowPassword()">Show Password
 						</div>
-
+						<br/>
 						<button type="submit" class="btn btn-secondary">Register</button>
 
-						<input type="hidden" th:name="${_csrf.parameterName}"
+					    <input type="hidden" th:if="${_csrf != null && _csrf.parameterName != null && _csrf.token != null}" th:name="${_csrf.parameterName}"
 							th:value="${_csrf.token}" />
 					</form>
 				</div>

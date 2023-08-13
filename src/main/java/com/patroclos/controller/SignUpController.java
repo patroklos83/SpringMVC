@@ -1,9 +1,5 @@
 package com.patroclos.controller;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,9 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.patroclos.controller.core.BaseController;
 import com.patroclos.dto.UserDTO;
-import com.patroclos.exception.SystemException;
-
-import io.jsonwebtoken.lang.Collections;
 
 @Controller
 public class SignUpController extends BaseController {

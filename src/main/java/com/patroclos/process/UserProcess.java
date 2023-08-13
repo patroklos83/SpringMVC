@@ -10,7 +10,7 @@ import com.patroclos.service.UserService;
 public class UserProcess extends BaseProcess {
 
 	@Autowired
-	private UserService UserService;
+	private UserService UserService;	
 
 	public final String PROCESS_SIGNUP = "SIGNUP";
 

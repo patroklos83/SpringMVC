@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.patroclos.businessobject.core.BaseBO;
+import com.patroclos.model.ActivityLog;
 import com.patroclos.model.BaseO;
 
 @Component
@@ -17,6 +18,11 @@ public class ActivityLogBO extends BaseBO {
 	@Override
 	public BaseO load(long id, Class<? extends BaseO> baseO) {
 		return super.loadBaseO(id, baseO);
+	}
+	
+	@Override
+	public List<BaseO> loadAll() {
+		return super.load(ActivityLog.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -35,6 +41,11 @@ public class ActivityLogBO extends BaseBO {
 	@Override
 	public void save(BaseO baseO) throws Exception {
 		super.saveBaseO(baseO);		
+	}
+	
+	@Override
+	public void saveAll(List<BaseO> baseOs) throws Exception {
+		super.saveAllBaseO(baseOs);
 	}
 
 	@Override

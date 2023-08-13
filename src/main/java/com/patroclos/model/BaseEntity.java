@@ -3,18 +3,9 @@ package com.patroclos.model;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import jakarta.persistence.*;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
@@ -27,20 +18,23 @@ public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	//@CreatedBy
-	@NotAudited
-	@ManyToOne(fetch=FetchType.EAGER)
+	@Audited
+	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "createdBy", updatable = false)
 	private User createdByuser;
+	
+	@Audited
+	@OneToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name = "createdByGroup", updatable = false)
+	private Group createdByGroup;
 
 	@Audited
 	@CreatedDate
     @Column(name = "createdDate", updatable = false)
 	private Instant createdDate;
 	
-    //@LastModifiedBy
-	@NotAudited
-	@ManyToOne(fetch=FetchType.EAGER)
+	@Audited
+	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "lastModifiedBy")
 	private User lastUpdatedByuser;
 
@@ -49,12 +43,16 @@ public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
     @Column(name = "lastModifiedDate")
 	private Instant lastUpdatedDate;
 	
+	// @Version as per the envers documentation
+	// is not being audited since there is no reason to
+	// Unless configuration key is set to false
+	// org.hibernate.envers.do_not_audit_optimistic_locking_field
 	@Audited
 	@Column(name = "version")
 	@Version
 	private Long version;
 
-	@Transient
+	@Transient //always use javax.persistence.Transient
 	private boolean isNew = true; 
 
 	@Override
@@ -78,6 +76,14 @@ public abstract class BaseEntity<ID> implements Persistable<ID>, Serializable {
 
 	public void setCreatedByuser(User createdByuser) {
 		this.createdByuser = createdByuser;
+	}
+	
+	public Group getCreatedByGroup() {
+		return createdByGroup;
+	}
+
+	public void setCreatedByGroup(Group createdByGroup) {
+		this.createdByGroup = createdByGroup;
 	}
 
 	public Instant getCreatedDate() {

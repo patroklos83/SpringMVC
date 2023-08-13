@@ -1,11 +1,13 @@
 package com.patroclos.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "activitylogDetails")
@@ -13,7 +15,8 @@ public class ActivityLogDetail extends BaseO {
 
 	private static final long serialVersionUID = 1L;
 	@Id
-	@GeneratedValue(generator = "activitylogDetails_sequence")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "activitylogDetails_sequence")
+	@SequenceGenerator(name = "activitylogDetails_sequence", sequenceName = "activitylogDetails_sequence", allocationSize = 1)
 	@Column(name="id")
 	private long id;  
 	

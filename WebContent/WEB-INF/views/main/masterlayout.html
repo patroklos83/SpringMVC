@@ -9,8 +9,8 @@
 <!--End of CSRF tags -->
 <title>Spring MVC</title>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-	integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-	crossorigin="anonymous"></script>
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+ 	crossorigin="anonymous"></script>
 
 <link rel="stylesheet"
 	href="//cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
@@ -22,17 +22,20 @@
 <script
 	src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
 <link rel="stylesheet"
-	th:href="${#httpServletRequest.getContextPath().toString()} + '/assets/js/bootstrap-datepicker/bootstrap-datepicker.min.css'" />
+	th:href="${contextPath} + '/assets/js/bootstrap-datepicker/bootstrap-datepicker.min.css'" />
 <script
-	th:src="${#httpServletRequest.getContextPath().toString()} + '/assets/js/bootstrap-datepicker/bootstrap-datepicker.min.js'"></script>
+	th:src="${contextPath} + '/assets/js/bootstrap-datepicker/bootstrap-datepicker.min.js'"></script>
 
 
 <style>
 body {
 	margin: 0;
 	font-family: "Lato", sans-serif;
+}
+
+.sidebarcolor {
+	background-color: #f1f1f1;
 }
 
 .sidebar {
@@ -141,35 +144,45 @@ th {
 	{
 	background-color: #f9f9f9;
 }
+
+.message {
+	width: 80vw;
+	position: absolute !important;
+	top: 10% !important;
+	left: 55% !important;
+	transform: translate(-50%, -50%);
+	box-shadow: 0px 0px 10px #cccccc;
+	z-index: 1000;
+}
 </style>
 </head>
 <body>
 	<!-- CSRF -->
-	<input name='_csrf' type="hidden" th:name="${_csrf.parameterName}"
-		th:value="${_csrf.token}" />
+	<input name='_csrf' type="hidden" th:if="${_csrf != null && _csrf.parameterName != null && _csrf.token != null}" 
+	th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 	</div>
-	<div id="overlay">
-		<div class="cv-spinner">
-			<span class="spinner"></span>
+		<div id="overlay">
+			<div class="cv-spinner">
+				<span class="spinner"></span>
+			</div>
 		</div>
-	</div>
-	<div id='divPageContent'></div>
-	<div id="alertError"
-		class="alert alert-danger alert-dismissible fade show"
-		style="display: none;" role="alert">
-		<strong>Error!</strong><span id='errorMsg'
-			style='overflow: auto; padding-left: 15px'></span>
-		<button type="button" class="btn-close" aria-label="Close"
-			onclick='clearMessages()'></button>
-	</div>
-	<div id="alertSuccess"
-		class="alert alert-success alert-dismissible fade show"
-		style="display: none;" role="alert">
-		<strong>Success!</strong> <span id='successMsg'
-			style='overflow: auto; padding-left: 15px'></span>
-		<button type="button" class="btn-close" aria-label="Close"
-			onclick='clearMessages()'></button>
-	</div>
+		    <div id='divPageContent'></div>
+	        <div id="alertError"
+				class="message alert alert-danger alert-dismissible fade show"
+				style="display: none;" role="alert">
+				<strong>Error!</strong><span id='errorMsg'
+					style='overflow: auto; padding-left: 15px'></span>
+				<button type="button" class="btn-close" aria-label="Close"
+					onclick='clearMessages()'></button>
+			</div>
+			<div id="alertSuccess"
+				class="message alert alert-success alert-dismissible fade show"
+				style="display: none;" role="alert">
+				<strong>Success!</strong> <span id='successMsg'
+					style='overflow: auto; padding-left: 15px'></span>
+				<button type="button" class="btn-close" aria-label="Close"
+					onclick='clearMessages()'></button>
+			</div>
 	<section id="childpagePlaceholder" layout:fragment="childpage">
 		<p>Child Page content goes here</p>
 	</section>
@@ -203,11 +216,18 @@ th {
 		setContent(page);
 	}
 
+	
 	var isPagePostBack = true;
 	function setContent(pagename) {
 		if (pagename == null || pagename == '') {
 			return;
 		}
+		
+// 		if (isPagePostBack){
+// 			console.log('executing setContent with full page postback');
+// 			executeProcessPostBack(pagename, null);
+// 			return;
+// 		}
 
 		var url = "/" + getAppURI() + "/" + pagename;
 		console.log(url);
@@ -217,15 +237,12 @@ th {
 			data : "{contenttype: 'dynamic'}",
 			success : function(data) {
 				console.log('setContent data confirmed sucess');
-				console.log(data);
 				var keepScripts = true;
-				var body = $($.parseHTML(data, keepScripts)).filter(
-						"#childpagePlaceholder").html();
+				var body = $($.parseHTML(data, keepScripts)).filter("#childpagePlaceholder").html();
 				$(".dynamic_content").html(body);
 				console.log(body);
 				clearMessages();
 				isPagePostBack = false;
-
 			},
 			error : function(xhr, status, error) {
 				console.log('setContent data error');
@@ -233,18 +250,16 @@ th {
 			}
 		})
 	}
-
+	
 	function executeProcess(uri, params, isDisplaySuccess, fillComponent) {
 		var url = "/" + getAppURI() + "/" + uri;
 
-		if (fillComponent == null && isPagePostBack) {
-			console
-					.log('executing process with full page postback: isPagePostBack:'
-							+ isPagePostBack);
+		if (fillComponent == null && isPagePostBack){
+			console.log('executing process with full page postback: isPagePostBack:' + isPagePostBack);
 			executeProcessPostBack(url);
 			return;
-		}
-
+		}		
+		
 		$.ajax({
 			url : url,
 			type : 'POST',
@@ -254,14 +269,13 @@ th {
 				console.log(data);
 
 				var keepScripts = true;
-				var body = $($.parseHTML(data, keepScripts)).filter(
-						"#childpagePlaceholder").html();
+				var body = $($.parseHTML(data, keepScripts)).filter("#childpagePlaceholder").html();
 
 				if (body == null)
 					body = data;
-
+				
 				if (fillComponent != null) {
-					$(fillComponent).html(body);
+					$(fillComponent).html(body); 
 					console.log(fillComponent);
 					console.log(body);
 				} else {
@@ -282,18 +296,18 @@ th {
 
 	function executeProcessPostBack(uri) {
 		console.log(uri);
-
+		
 		var form;
 		var formId = "[[${formId}]]";
-		if (formId.length > 0) {
+		if (formId.length > 0){
 			form = $('#[[${formId}]]');
-			//var formValues = $('#[[${formId}]]').serialize();
-		} else {
-			var form = $("<form></form>");
-			// form.append('<input type="button" value="button">');
-			$('body').append(form);
 		}
-
+		else
+			{
+			  var form = $("<form></form>");
+			  $('body').append(form);
+			}
+		
 		form.attr("method", "post");
 		form.attr("action", uri);
 
@@ -303,7 +317,7 @@ th {
 		var csrfToken = document.createElement("input");
 		csrfToken.setAttribute("type", "hidden");
 		csrfToken.setAttribute("name", "_csrf");
-		csrfToken.setAttribute("value", token);
+		csrfToken.setAttribute("value", token);		
 
 		form.append(csrfToken);
 		form.submit();
@@ -321,6 +335,19 @@ th {
 	var token = $("input[name='_csrf']").attr("value");
 	var header = $("meta[name='_csrf_header']").attr("content");
 
+// 	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+// 		if (options.type.toLowerCase() === "post") {
+// 			// initialize `data` to empty string if it does not exist
+// 			options.data = options.data || "";
+// 			// add leading ampersand if `data` is non-empty
+// 			options.data += options.data ? "&" : "";
+// 			// add _token entry
+// 			options.data += "_token=" + encodeURIComponent(token);
+
+// 			console.log("adding csrf token 2 " + token);
+// 		}
+// 	});
+
 	var loading;
 	$.ajaxSetup({
 		beforeSend : function(xhr, settings) {
@@ -331,17 +358,18 @@ th {
 		complete : function(xhr, settings) {
 			clearTimeout(loading);
 			setTimeout(function() {
-				$("#overlay").fadeOut(300);
+			$("#overlay").fadeOut(300);
 			}, 500);
 		},
 		error : function(xhr, status, error) {
 			console.log(error);
-			clearTimeout(loading);
+				clearTimeout(loading);
 			setTimeout(function() {
-				$("#overlay").fadeOut(300);
+			$("#overlay").fadeOut(300);
 			}, 500);
 			showErrorMessage(xhr);
 		}
 	});
+	
 </script>
 </html>

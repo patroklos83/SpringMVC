@@ -11,7 +11,7 @@ public class SqlCommentStatementInspector implements StatementInspector {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Logger logger = ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(this.getClass()));
+	private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	
  
     @Override

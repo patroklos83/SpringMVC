@@ -3,11 +3,19 @@ package com.patroclos.model;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.*;
+import org.hibernate.envers.AuditJoinTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import jakarta.persistence.*;
+
+@Audited
 @Entity
 @Table(name = "roles")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role extends BaseO {
     
 	/**
@@ -16,14 +24,19 @@ public class Role extends BaseO {
 	private static final long serialVersionUID = 1L;
 	@Id 
 	@Column
-    @GeneratedValue(generator = "roles_sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_sequence")
+	@SequenceGenerator(name = "roles_sequence", sequenceName = "roles_sequence", allocationSize = 1)
     private Long id;
+	
+	@Audited(withModifiedFlag = true)
     @Column(nullable = false, unique = true)
     private String name;
-//
-//    @ManyToMany(mappedBy = "roles", fetch=FetchType.EAGER)
-//    private List<User> users;
-//    
+	
+	@Audited(withModifiedFlag = true)
+    @Column(nullable = false, unique = true)
+	private int hierarchyOrder;
+
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
     @JoinTable(
         name = "roles_privileges", 
@@ -32,8 +45,25 @@ public class Role extends BaseO {
         inverseJoinColumns = @JoinColumn(
           name = "privilege_id", referencedColumnName = "id"))
     private Collection<Privilege> privileges;
+	
+//	@Audited
+//	@AuditJoinTable(name = "role_entityAccess_aud")
+//	@ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
+//	@JoinTable(
+//			name="role_entityAccess",
+//			joinColumns={@JoinColumn(name="role_id")},
+//			inverseJoinColumns={@JoinColumn(name="entityAccess_id")})
+//    private List<EntityAccess> entityAcces;
+	
+	@Audited
+	@AuditJoinTable(name = "role_entityAccess_aud")
+	@OneToMany(mappedBy = "role", fetch=FetchType.EAGER)
+    private List<RoleEntityAccess> roleEntityAcces;
+	
+	@Transient
+	private String roleHierarchy;
 
-    @Override
+	@Override
     public Long getId() {
         return id;
     }
@@ -50,13 +80,21 @@ public class Role extends BaseO {
         this.name = name;
     }
 
-//    public List <User> getUsers() {
-//        return users;
-//    }
-//
-//    public void setUsers(List <User> users) {
-//        this.users = users;
-//    }
+	public int getHierarchyOrder() {
+		return hierarchyOrder;
+	}
+	
+	public String getRoleHierarchy() {
+		return roleHierarchy;
+	}
+
+	public void setRoleHierarchy(String roleHierarchy) {
+		this.roleHierarchy = roleHierarchy;
+	}
+
+	public void setHierarchyOrder(int hierarchyOrder) {
+		this.hierarchyOrder = hierarchyOrder;
+	}
 
 	public Collection<Privilege> getPrivileges() {
 		return privileges;
@@ -65,6 +103,12 @@ public class Role extends BaseO {
 	public void setPrivileges(Collection<Privilege> privileges) {
 		this.privileges = privileges;
 	}
-    
+    public List<RoleEntityAccess> getRoleEntityAcces() {
+		return roleEntityAcces;
+	}
+
+	public void setRoleEntityAcces(List<RoleEntityAccess> roleEntityAcces) {
+		this.roleEntityAcces = roleEntityAcces;
+	} 
     
 }

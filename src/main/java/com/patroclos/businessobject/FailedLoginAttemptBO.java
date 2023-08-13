@@ -11,7 +11,7 @@ import com.patroclos.model.BaseO;
 import com.patroclos.model.FailedLoginAttempt;
 
 @Component
-public class FailedLoginAttemptBO extends BaseBO{
+public class FailedLoginAttemptBO extends BaseBO {
 	
 	public final int FAILED_LOGIN_ATTEMPTS_TIME_SECONDS_THRESHOLD = 60 * 10;
 
@@ -39,11 +39,22 @@ public class FailedLoginAttemptBO extends BaseBO{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public List<BaseO> loadAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public void save(BaseO baseO) throws Exception {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void saveAll(List<BaseO> baseOs) throws Exception {
+		super.saveAllBaseO(baseOs);
 	}
 
 	@Override

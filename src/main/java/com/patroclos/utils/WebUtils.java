@@ -6,7 +6,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 
 @Component
 public class WebUtils {
@@ -89,7 +90,7 @@ public class WebUtils {
 		return request.getRemoteAddr();
 	}
 
-	public static String getClientIpAddress(HttpServletRequest request) {
+	public static String getClientIpAddress(jakarta.servlet.http.HttpServletRequest request) {
 
 		for (String header: IP_HEADER_CANDIDATES) {
 			String ipList = request.getHeader(header);
@@ -100,6 +101,15 @@ public class WebUtils {
 		}
 
 		return request.getRemoteAddr();
+	}
+	
+	public String getContextPath() {
+		
+		if (request != null) {
+			return request.getContextPath();
+		}
+		
+		return "";
 	}
 
 

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" 
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{main/masterlayout.html}">
 <head>
 <meta charset="UTF-8">
@@ -8,7 +7,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 </head>
 <body>
 
-	<section layout:fragment="childpage" style="padding: 20px 50px 20px 50px">
+	<section layout:fragment="childpage"
+		style="padding: 20px 50px 20px 50px">
+
+		<style>
+.readonly {
+	background-color: #e9ecef !important;
+}
+</style>
 
 		<div class="page-header flex-wrap"
 			style="min-width: 70vw; margin-top: 20px">
@@ -49,17 +55,63 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 		</div>
 
 		<form th:id='${formId}' class='detailsForm'
-			style='width: 30vw; margin-top: 60px'>
+			style='width: 70vw; margin-top: 60px'>
 			<input id='hash' name='hash' type='hidden' th:value='${formId}' />
 			<section layout:fragment="content" id="pageContent">
 				<p>Page content goes here</p>
 			</section>
+
+			<div id="dialog-form" class="modal" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document" style="max-width: 60vw !important;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 id="modal-title" class="modal-title"></h5>
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close" onclick="javascript:$('#dialog-form').modal('hide');">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div id="modal-body" class="modal-body">
+							
+						</div>
+						<div class="modal-footer">
+							<button type="button" id="modalConfirmBtn" class="btn btn-primary" onclick="">Confirm</button>
+							<button type="button" class="btn btn-secondary"
+								data-dismiss="modal" onclick="javascript:$('#dialog-form').modal('hide');">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</form>
 		<script>
 			function execute(action, isDisplay) {
+
 				var formValues = $('#[[${formId}]]').serialize();
 				var isDisplayBool = isDisplay == true ? true : false;
-				executeProcess(action, formValues, isDisplayBool);
+				
+			    var formVals = formValues;
+				$('table > tbody').find('tr').each(function(){
+				  var tablerow = $(this);
+				  $("td input", tablerow).each(function () {
+				    var input = $(this);
+				    var value = input.val();
+					var c = input.attr('class');				
+					var type = input.attr('type');
+					if (type == "checkbox") {
+						var checked = $(input).is(':checked');
+				        value = checked ? "true" : "false";
+				        console.log(value);
+				    }
+									
+					if (c != null && c == 'valuedatafield')
+					{					
+						formVals += '&' + input.attr('name') + '=' + encodeURIComponent(value);
+					}
+				  });
+				 });
+						
+				executeProcess(action, formVals, isDisplayBool);
 			}
 		</script>
 

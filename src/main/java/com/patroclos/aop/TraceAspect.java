@@ -1,5 +1,9 @@
 package com.patroclos.aop;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -23,7 +27,21 @@ public class TraceAspect extends BaseAspect {
 
 	@AfterThrowing(pointcut="execution(* com.patroclos.process..*(..)) || execution(* com.patroclos.service..*(..)) || execution(* com.patroclos.businessobject..*(..))", throwing = "e")
 	public void logAfterThrowingAllMethods(Exception e) throws Throwable {
-		logger.info("{}; Error thrown: " + e.getMessage() + "{}", getUniqueThreadHashCode(), e.getStackTrace().toString() + " Cause: " +  e.getCause());
+		
+		String stackTrace = null;
+		try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
+			  e.printStackTrace(pw);
+			  stackTrace = sw.toString();
+			} catch (IOException ex) {
+			  throw new RuntimeException("Error while converting the stacktrace");
+			}
+		
+		logger.info("{};\n Error thrown:" 
+				+ "\n" + e.getMessage() 
+				+ "\n {}", 
+				getUniqueThreadHashCode(), 
+				stackTrace 
+				+ "\nCause: " +  e.getCause());
 	}
 
 	@Around("execution(* com.patroclos.process..*(..)) || execution(* com.patroclos.service..*(..)) || execution(* com.patroclos.businessobject..*(..))")	

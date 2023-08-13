@@ -1,8 +1,6 @@
 package com.patroclos.controller.core;
 
 import java.util.HashMap;
-import java.util.Queue;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -17,6 +15,12 @@ public class DataHolder {
     public DataHolder() {
         data = null;
         dataMap = new HashMap<String, Object>();
+    }
+    
+    public void clear() {
+    	if (dataMap != null && dataMap.size() > 0)
+    		dataMap.clear();
+    	data = null;
     }
 
     public Object getData() {

@@ -6,6 +6,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spring MVC</title>
+<head>
+<style>
+@media screen and (max-width: 700px)
+{
+  .sidebarAccordion {
+    	padding: 3.5rem 1.25rem !important;
+	}
+}
+</style>
 </head>
 <body>
 	<section layout:fragment="childpage">
@@ -14,10 +23,39 @@
 			<a class="navlink disableHref active" href="index?page=dashboard"
 				onclick="setContent('dashboard')">Home</a> <a
 				class="navlink disableHref" href="index?page=articles"
-				onclick="setContent('articles')">Articles</a> <a
-				class="navlink disableHref" href="index?page=activitylogs"
-				onclick="setContent('activitylogs')">Activity</a> <a
-				href="javascript: document.logoutForm.submit()">Log Out</a>
+				onclick="setContent('articles')">Articles</a>
+
+			<div th:if="${permissionUserManagement == true}">
+				<a class="navlink disableHref" href="index?page=activitylogs"
+					onclick="setContent('activitylogs')">Activity</a>
+			</div>
+
+			<!-- User Management links -->
+					<div class="accordion-item sidebarcolor" th:if = "${permissionUserManagement == true}">
+						<h2 class="accordion-header" id="headingOne">
+							<button class="accordion-button collapsed sidebarcolor" type="button"
+							    style="background-color: #f1f1f1; color: #000000;"
+								data-bs-toggle="collapse" data-bs-target="#collapseOne"
+								aria-expanded="false" aria-controls="collapseOne">User Management</button>
+						</h2>
+						<div id="collapseOne" class="accordion-collapse collapse"
+							aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+							<div class="accordion-body sidebarAccordion">
+								<a class="navlink disableHref" href="index?page=users"
+									onclick="setContent('users')">Users</a> <a
+									class="navlink disableHref" href="index?page=roles"
+									onclick="setContent('roles')">Roles</a>  <a
+									class="navlink disableHref" href="index?page=usergroups"
+									onclick="setContent('usergroups')">Groups</a>  <a
+									class="navlink disableHref" href="index?page=entitiesaccess"
+									onclick="setContent('entitiesaccess')">Entities</a>
+							</div>
+						</div>
+					</div>
+				
+				
+				
+				<a href="javascript: document.logoutForm.submit()">Log Out</a>
 		</div>
 
 		<div class="content">
@@ -26,14 +64,15 @@
 		</div>
 
 		<form action="logout" method="post" hidden="true" name="logoutForm">
-			<input type="submit" value="Logout" /> <input type="hidden"
-				th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+			<input type="submit" value="Logout" /> 
+  			<input type="hidden" th:if="${_csrf != null && _csrf.parameterName != null && _csrf.token != null}" 
+  			th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 		</form>
 
 
 		<!-- CSRF -->
-		<input name='_csrf' type="hidden" th:name="${_csrf.parameterName}"
-			th:value="${_csrf.token}" />
+		<input name='_csrf' type="hidden" th:if="${_csrf != null && _csrf.parameterName != null && _csrf.token != null}"
+		th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 		</div>
 
 

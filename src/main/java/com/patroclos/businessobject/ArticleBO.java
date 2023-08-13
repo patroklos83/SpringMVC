@@ -1,9 +1,10 @@
 package com.patroclos.businessobject;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.patroclos.businessobject.core.BaseBO;
-import com.patroclos.exception.SystemException;
 import com.patroclos.exception.ValidationException;
 import com.patroclos.model.Article;
 import com.patroclos.model.BaseO;
@@ -17,8 +18,18 @@ public class ArticleBO extends BaseBO {
 	}
 
 	@Override
+	public List<BaseO> loadAll() {
+		return super.load(Article.class);
+	}
+
+	@Override
 	public void save(BaseO baseO) throws Exception {
 		super.saveBaseO(baseO);		
+	}
+	
+	@Override
+	public void saveAll(List<BaseO> baseOs) throws Exception {
+		super.saveAllBaseO(baseOs);
 	}
 
 	@Override

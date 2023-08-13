@@ -20,29 +20,43 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 import com.patroclos.security.CustomAuthenticationFailureHandler;
 import com.patroclos.security.CustomAuthenticationSuccessHandler;
 import com.patroclos.security.CustomLogoutSuccessHandler;
 
+import com.patroclos.service.*;
+
 @EnableWebSecurity
 @Configuration
-@ImportResource("classpath*:/WEB-INF/startup-servlet.xml")
+@ImportResource("classpath*:startup-servlet.xml")
 public class SecurityConfiguration {
 
 	@Autowired
 	public DataSource dataSource;
 	@Autowired
 	public UserDetailsService customUserDetailService;
+	@Autowired
+	public UserService UserService;
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	/***
+	 *  'RememberMe' cookie contains the username, expiration time and MD5 hash containing 
+	 *  the password. Because it contains a hash of the password, this solution is potentially vulnerable 
+	 *  if the cookie is captured.
+	 *  Let's use PersistentTokenBasedRememberMeServices instead to store the persisted login information 
+	 *  in a database table between sessions.
+	 *  
+	 */
 	public PersistentTokenRepository persistentTokenRepository(){
 		JdbcTokenRepositoryImpl tokenRepositoryImpl = new JdbcTokenRepositoryImpl();
 		tokenRepositoryImpl.setDataSource(dataSource);
@@ -64,6 +78,16 @@ public class SecurityConfiguration {
 		return new CustomLogoutSuccessHandler();
 	}
 
+	@Bean
+	public ClearSiteDataHeaderWriter clearSiteDataHandler() {
+		return new ClearSiteDataHeaderWriter(Directive.ALL);
+	}
+
+	@Bean
+	public HeaderWriterLogoutHandler logoutHandler() {
+		return new HeaderWriterLogoutHandler(clearSiteDataHandler());
+	}
+
 	@Bean("authenticationManager")
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
@@ -79,44 +103,55 @@ public class SecurityConfiguration {
 	@Bean
 	public RoleHierarchy roleHierarchy() {
 		// Role ADMIN automatically gives the user the privileges of both the STAFF and USER roles.
-		// A user with the role STAFF can only perform STAFF and USER role actions.
-		// Role ADMIN includes the role STAFF, which in turn includes the role USER.
+		// A user with the role MANAGER can only perform MANAGER and USER role actions.
+		// Role ADMIN includes the role MANAGER, which in turn includes the role USER.
 		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-		String hierarchy = "ROLE_ADMIN > ROLE_USER \n ROLE_STAFF > ROLE_USER";
+		// String hierarchy = "ROLE_ADMIN > ROLE_MANAGER \n ROLE_MANAGER > ROLE_USER > ROLE_ANONYMOUS";
+		// Autocreate the string of hierarchy ordering
+		String hierarchy = UserService.getRoleHierarchyString();
 		roleHierarchy.setHierarchy(hierarchy);
 		return roleHierarchy;
 	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-		http.authorizeRequests()
-		.antMatchers("/login", "/signup", "/signupconfirm").permitAll()
-		.antMatchers("/**", "/index**").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-		.and()
-		.formLogin().loginPage("/login").defaultSuccessUrl("/index?page=dashboard").successHandler(authenticationSuccessHandler())
-		.failureHandler(authenticationFailureHandler())
-		.and()
-		.logout().logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler()).invalidateHttpSession(true).deleteCookies("JSESSIONID")
-		.and()
-		.sessionManagement(session -> session
-				.maximumSessions(1) //set maximum concurrent user logins
-				.maxSessionsPreventsLogin(true) //second login will be prevented
+		http
+		.authorizeHttpRequests((authorize) -> authorize
+				.requestMatchers("/", "/admin/h2","/admin/h2/**","/login", "/signup", "/signupconfirm").permitAll()
+				.requestMatchers("/**", "/index**").hasRole("USER")
+				.anyRequest().authenticated()
 				)
-		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).sessionFixation().migrateSession(); //on authentication create a new session to avoid session fixation attack
- 
-		http.csrf(); // if webapp is not running in localhost, for the csrf to work, must use https
-		
-		http.headers()
-		.frameOptions()
-		.sameOrigin() //allow html pages inside html frames, only from same domain
-		.xssProtection().block(false); // Reflected XSS attack protection - https://wiki.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OTG-INPVAL-001)
+		.formLogin(form -> form
+				.loginPage("/login")
+				.defaultSuccessUrl("/index?page=dashboard").successHandler(authenticationSuccessHandler())
+				.failureHandler(authenticationFailureHandler())
+				.permitAll()
+				)
+		.logout((logout) -> logout
+				.logoutUrl("/logout")
+				.clearAuthentication(true)
+				.deleteCookies("JSESSIONID").deleteCookies("remember-me")
+				.invalidateHttpSession(true)
+				.addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(Directive.COOKIES)))
+				.logoutSuccessHandler(logoutSuccessHandler())
+				)
+		.sessionManagement(session -> session
+				.sessionConcurrency(c -> c.maximumSessions(1).maxSessionsPreventsLogin(true))
+				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).sessionFixation().newSession()
+				)
+		.rememberMe(remember -> remember
+				.key("uniqueAndSecret")
+				.alwaysRemember(true)
+				.tokenRepository(persistentTokenRepository()).tokenValiditySeconds(60 * 60)
+				);
+	
+		//http.csrf(csrf -> csrf.disable()); //disable csrf for access to H2 Console
 
 		return http.build();
 	}
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.ignoring().antMatchers("/images/**", "/js/**", "/webjars/**", "/admin/h2/**");
+		return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**", "/admin/h2/**");
 	}
 }

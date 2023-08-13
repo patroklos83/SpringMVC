@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.patroclos.processmanager.IProcess;
 import com.patroclos.processmanager.IProcessManager;
+import com.patroclos.processmanager.IProcess;
 import com.patroclos.processmanager.ResponseDTO;
 import com.patroclos.processmanager.RestProcessManager;
 

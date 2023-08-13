@@ -1,10 +1,7 @@
 package com.patroclos.dto;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
-
-import com.patroclos.model.Role;
 
 public class UserDTO extends BaseDTO {
 
@@ -16,9 +13,11 @@ public class UserDTO extends BaseDTO {
 	private String username;
 	private String password;
 	private String passwordConfirm;
+	private boolean isPasswordChange;
 	private Instant passwordExpirationDate;
 	private int enabled;
-    private Collection<Role> roles;
+    private List<RoleDTO> roles;
+    private List<GroupDTO> groups;
 
 	public String getUsername() {
 		return username;
@@ -50,11 +49,23 @@ public class UserDTO extends BaseDTO {
 	public void setEnabled(int enabled) {
 		this.enabled = enabled;
 	}
-	public Collection<Role> getRoles() {
+	public List<RoleDTO> getRoles() {
 		return roles;
 	}
-	public void setRoles(Collection<Role> roles) {
+	public void setRoles(List<RoleDTO> roles) {
 		this.roles = roles;
+	}
+	public boolean isPasswordChange() {
+		return isPasswordChange;
+	}
+	public void setPasswordChange(boolean isPasswordChange) {
+		this.isPasswordChange = isPasswordChange;
+	}
+	public List<GroupDTO> getGroups() {
+		return groups;
+	}
+	public void setGroups(List<GroupDTO> groups) {
+		this.groups = groups;
 	}
 	
 }

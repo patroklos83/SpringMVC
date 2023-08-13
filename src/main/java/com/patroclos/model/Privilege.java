@@ -1,19 +1,17 @@
 package com.patroclos.model;
 
-import java.util.Collection;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 
 @Entity
-public class Privilege {
+public class Privilege extends BaseO {
  
     @Id
-    @GeneratedValue(generator = "privileges_sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "privileges_sequence")
+    @SequenceGenerator(name = "privileges_sequence", sequenceName = "privileges_sequence", allocationSize = 1)
     private Long id;
 
     private String name;

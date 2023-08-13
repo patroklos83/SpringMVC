@@ -5,16 +5,21 @@ import com.patroclos.uicomponent.UIInputType;
 public abstract class UIComponent {
 	
 	private String Id;
-	private String name;
+	protected String name;
 	private String hash;
-	private UIInputType type;
 	private Object value;
 	private String html;
 	private String dbField;
 	private DbFieldType dbFieldType;
-
 	private boolean isDbPrivateKey;
 	
+	protected UIInputType type;
+	protected boolean isEditable = true;
+	
+	/***
+	 * This is the server side component id
+	 * @return
+	 */
 	public String getId() {
 		return Id;
 	}
@@ -69,6 +74,10 @@ public abstract class UIComponent {
 	public void setHash(String hash) {
 		this.hash = hash;
 	}
-	
-	
+	public boolean IsEditable() {
+		return isEditable;
+	}
+	public void setIsEditable(boolean isEditable) {
+		this.isEditable = isEditable;
+	}	
 }

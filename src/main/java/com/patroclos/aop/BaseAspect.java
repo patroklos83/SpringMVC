@@ -12,7 +12,7 @@ import ch.qos.logback.classic.Logger;
 public class BaseAspect {
 
 	protected Logger logger = ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(this.getClass()));
-
+	
 	@Autowired
 	protected ObjectMapper jacksonObjectMapper;
 	

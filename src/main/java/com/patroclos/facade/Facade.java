@@ -20,6 +20,17 @@ public class Facade  {
 	@Autowired
 	private ActivityProcess ActivityProcess;	
 	
+	/***
+	 * Validates if user has permission to search
+	 * @param input
+	 * @return
+	 * @throws Exception
+	 */
+	public Object validateSearchAccess(BaseDTO input) throws Exception {
+		IProcess<?, ?, ?> process = b -> CRUDProcess.search(input);
+		return processManager.runProcess(process, input, CRUDProcess.PROCESS_NAME_SEARCH);
+	}
+	
 	public <T> Object load(long id, Class<? extends BaseDTO> inputType) throws Exception{
 		IProcess<?, ?, ?> process = b -> CRUDProcess.load(id, inputType);
 		return processManager.runProcess(process, inputType, id, CRUDProcess.PROCESS_NAME_READ);

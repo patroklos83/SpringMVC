@@ -1,20 +1,23 @@
 package com.patroclos.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class CustomErrorController {
+public class CustomErrorController  {
 
 	@RequestMapping("/error")
-	public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response) {
-		ModelAndView errorPage = new ModelAndView("error");
-		String errorMsg = "Oops something went wrong!";
+	public ModelAndView handleError(HttpServletRequest request) {
+    	ModelAndView errorPage = new ModelAndView("error");
+		String errorMsg = "";
 		int httpErrorCode = getErrorCode(request);
+		
+		getError(request);
 
 		switch (httpErrorCode) {
 			case 400: {
@@ -34,29 +37,23 @@ public class CustomErrorController {
 				break;
 			}
 		}
-
-		String errorMessage = (String) request
-		.getAttribute("javax.servlet.error.message");
-
-		Throwable throwable = (Throwable) request
-				.getAttribute("javax.servlet.error.exception");
-		Integer statusCode = (Integer) request
-				.getAttribute("javax.servlet.error.status_code");
-		String servletName = (String) request
-				.getAttribute("javax.servlet.error.servlet_name");
 		
 		if (httpErrorCode == HttpServletResponse.SC_FORBIDDEN)
 			errorMsg = "Session expired please relogin";
 		
 
 		errorPage.addObject("errorMsg", errorMsg);
-		
 		return errorPage;
 	}
 
 	private int getErrorCode(HttpServletRequest httpRequest) {
 		return (Integer) httpRequest
-				.getAttribute("javax.servlet.error.status_code");
+				.getAttribute(RequestDispatcher.ERROR_STATUS_CODE); //"jakarta.servlet.error.status_code");
 	}
-
+	
+	private void getError(HttpServletRequest httpRequest) {
+		Throwable throwable = (Throwable) httpRequest
+				.getAttribute(RequestDispatcher.ERROR_EXCEPTION); //"jakarta.servlet.error.exception");
+		var temp = 1;
+	}
 }

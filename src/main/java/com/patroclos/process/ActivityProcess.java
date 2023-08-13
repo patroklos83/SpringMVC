@@ -1,20 +1,22 @@
 package com.patroclos.process;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.patroclos.dto.ActivityLogDTO;
-import com.patroclos.dto.AuditedProperty;
+import com.patroclos.dto.AuditedPropertyDTO;
 import com.patroclos.dto.BaseDTO;
+import com.patroclos.dto.SummaryDTO;
 import com.patroclos.dto.UserDTO;
 import com.patroclos.model.BaseO;
 import com.patroclos.model.User;
 import com.patroclos.service.*;
 import com.patroclos.utils.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class ActivityProcess extends BaseProcess {
@@ -40,8 +42,7 @@ public class ActivityProcess extends BaseProcess {
 
 		String clientIp = WebUtils.getClientIpAddressIfServletRequestExist();
 		User user = AuthenticationService.getLoggedDbUser();
-		//ActivityLogDTO activityLogDto = new ActivityLogDTO();
-
+		
 		String entityId = "";
 		String entityOrDto = "";
 		if (activityLogDto.getInputType() != null) {
@@ -57,7 +58,8 @@ public class ActivityProcess extends BaseProcess {
 		if (activityLogDto.getInput() != null) {
 			entityOrDto = activityLogDto.getInput().getClass().getSimpleName();
 			try {
-				o = CustomModelMapper.mapDTOtoModel(activityLogDto.getInput());
+				if (!(activityLogDto.getInput() instanceof SummaryDTO))
+					o = CustomModelMapper.mapDTOtoModel(activityLogDto.getInput());
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -73,7 +75,7 @@ public class ActivityProcess extends BaseProcess {
 		CRUDService.save(activityLogDto);
 	}
 
-	public void logLoginActivity(HttpServletRequest request) throws Exception {
+	public void logLoginActivity(jakarta.servlet.http.HttpServletRequest request) throws Exception {
 		String clientIp = WebUtils.getClientIpAddress(request);
 		User user = AuthenticationService.getLoggedDbUser();
 		String processId = ProcessUtil.getActivityProcessId();
@@ -120,7 +122,7 @@ public class ActivityProcess extends BaseProcess {
 	}
 
 	@Transactional
-	public void loginFailActivity(HttpServletRequest request, String userName, String exceptionError) throws Exception {
+	public void loginFailActivity(jakarta.servlet.http.HttpServletRequest request, String userName, String exceptionError) throws Exception {
 		String clientIp = WebUtils.getClientIpAddress(request);
 		String processId = ProcessUtil.getActivityProcessId();
 		//Login is an internal process where it not executed from the Facade, therefore
@@ -137,7 +139,9 @@ public class ActivityProcess extends BaseProcess {
 			CRUDService.save(activityLogDto);
 			ActivityService.logFailedLoginAttempt(userName);
 			int countLoginFailedAttemps = ActivityService.countLoginFailedAttempsByUserName(userName);
-			if (countLoginFailedAttemps > 4) { // After 5 failed attempts, in a specified period of time, disable/lock account
+			if (countLoginFailedAttemps > 10) { 
+				// After more than 10 failed attempts, 
+				// in a specified period of time, disable/lock account
 				//https://owasp.org/www-project-web-security-testing-guide/latest
 				//4-Web_Application_Security_Testing/04-Authentication_Testing/03-Testing_for_Weak_Lock_Out_Mechanism
 				UserDTO userDTO = (UserDTO) UserService.loadUserByUsername(userName);
@@ -158,7 +162,7 @@ public class ActivityProcess extends BaseProcess {
 		}
 	}
 
-	public Map<String, AuditedProperty> getActivityLogRevisionChanges(BaseDTO input) throws Exception {
+	public Map<String, AuditedPropertyDTO> getActivityLogRevisionChanges(BaseDTO input) throws Exception {
 		return CRUDService.getActivityLogRevisionChanges(input.getId());
 	}
 }

@@ -13,23 +13,30 @@ import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 import org.springframework.stereotype.Component;
 
 import com.patroclos.exception.SystemException;
+import com.patroclos.facade.Facade;
 import com.patroclos.repository.IRepository;
-import com.patroclos.uicomponent.UIInput.Input;
+import com.patroclos.service.IAuthenticationService;
+import com.patroclos.service.UserService;
 import com.patroclos.uicomponent.core.ColumnDefinition;
 import com.patroclos.uicomponent.core.ColumnDefinitionType;
 import com.patroclos.uicomponent.core.DbFieldType;
+import com.patroclos.uicomponent.core.Input;
 import com.patroclos.uicomponent.core.Table;
 import com.patroclos.utils.DateUtil;
 
 @Component
-public class UITable extends UIComponentTemplate{
+public class UITable extends UITableBase {
 
 	@Autowired
-	private IRepository Repository;
-	private final int PAGING_ROWS = 4;
-	public static int SUMMARY_DEFAULT_PAGING_INDEX = 1;
-	public static String SUMMARY_PAGING_MAPPING = "summaryPaging";
-	private static int MAX_NUMBER_OF_PAGING_BUTTONS = 7;
+	protected IRepository Repository;
+	@Autowired
+	protected Facade Facade;
+	@Autowired
+	private UserService UserService;
+	@Autowired
+	private IAuthenticationService AuthenticationService;
+
+	private final String DATA_FILTERING_COLUMN_USERID = "USERID";
 
 	public Table draw(Table table) throws Exception {
 		return drawTable(table, null);
@@ -62,7 +69,6 @@ public class UITable extends UIComponentTemplate{
 		}
 		else
 		{	
-
 			MapSqlParameterSource sqlParams = new MapSqlParameterSource();
 			if (table.getColumnDefinitions() != null && table.getColumnDefinitions().size() > 0) {					
 				var rowsDefinitionValues = table.getColumnDefinitions().values().stream().filter(c -> c.getValue() != null).collect(Collectors.toList());
@@ -73,13 +79,24 @@ public class UITable extends UIComponentTemplate{
 			}
 
 			StringBuilder sql = new StringBuilder();
-			sqlParams = setWhereStatement(table.getSqlQuery(), sqlParams, searchParams, table.getInputFilters(), table.getSqlRowSet(), sql);
-
-			resultSet = Repository.customNativeQuery(sql.toString(), sqlParams);
+			String orderBy = "ORDER BY";
+			String sqlWithoutOrderBy = table.getSqlQuery();
+			String sqlOrderByStatement = "";
+			
+			if (table.getSqlQuery().toUpperCase().indexOf(orderBy) > 0) {
+				String[] sqlParts = table.getSqlQuery().toUpperCase().split(orderBy);
+				sqlWithoutOrderBy = sqlParts[0];
+				sqlOrderByStatement = sqlParts.length > 0 ? " " + orderBy + sqlParts[1] : "";
+			}
+			
+			sqlParams = setWhereStatement(sqlWithoutOrderBy, sqlParams, searchParams, table.getInputFilters(), table.getSqlRowSet(), sql);
+			String finalSql = sql.toString().toUpperCase() + sqlOrderByStatement;
+			
+			resultSet = Repository.customNativeQuery(finalSql, sqlParams);
 			table.setSqlRowSet(resultSet);
 		}
 
-		String tableHtml = getTableHtml(resultSet, table.getPagingParams(), table.getColumnDefinitions());
+		String tableHtml = getTableHtml(resultSet, table);
 		String id = null;
 		if (!isFromPagingAction) {
 			id = String.format("%s_%s", table.getTableId(), UUID.randomUUID().toString());
@@ -112,16 +129,21 @@ public class UITable extends UIComponentTemplate{
 			String sqlQuery, 
 			MapSqlParameterSource sqlParams,
 			Map<String,String> allParams, 
-			Map<String,Input> inputFilters, 
+			Map<String,Input> inputFiltersMap, 
 			SqlRowSet results, 
 			StringBuilder sql) {
 
 		if (sqlQuery != null && results == null)
 			sql = initSQL(sql, sqlQuery);
 
-		if (allParams != null && inputFilters != null) {
+		if (allParams != null && inputFiltersMap != null) {
+			
+			Map<String,Input> inputFilters = inputFiltersMap.entrySet().stream()
+			.collect(Collectors.toMap(entry -> entry.getKey().replace(" ", ""),
+					entry -> entry.getValue())); // trim spaces from keys
+			
 			for (Entry<String, String> paramEntry: allParams.entrySet()) {
-				String paramKey = paramEntry.getKey();
+				String paramKey = paramEntry.getKey().replace(" ", ""); // trim spaces
 				if (paramKey != null){
 					if (paramEntry.getValue() != null){
 						if (paramEntry.getValue().trim() != ""){
@@ -149,15 +171,15 @@ public class UITable extends UIComponentTemplate{
 									sql.append(" AND " + i.getDbField() + " < :" + paramName);
 								}
 								String dbDate = DateUtil.convertUiDateToDbDateFormat(paramEntry.getValue().toString());
-								sqlParams.addValue(paramName, dbDate);
+								sqlParams.addValue(paramName.toUpperCase(), dbDate);
 							}
 							else if (i.getType().equals(UIInputType.Text) && i.getDbFieldType() == DbFieldType.Text) {
 								sql.append(" AND UPPER(" + i.getDbField() + ") LIKE UPPER(:"+ i.getDbField() +")");
-								sqlParams.addValue(i.getDbField(), paramEntry.getValue().toString());
+								sqlParams.addValue(i.getDbField().toUpperCase(), paramEntry.getValue().toString());
 							}
 							else {
 								sql.append(" AND " + i.getDbField() + " = :"+ i.getDbField());		
-								sqlParams.addValue(i.getDbField(), paramEntry.getValue().toString());
+								sqlParams.addValue(i.getDbField().toUpperCase(), paramEntry.getValue().toString());
 							}
 
 							if (i.isDbPrivateKey())
@@ -182,10 +204,14 @@ public class UITable extends UIComponentTemplate{
 			if (columnAlias != null) {
 				columnName = columnAlias;
 			}			
+
+			if (columnAlias.toUpperCase().equals(DATA_FILTERING_COLUMN_USERID))
+				continue; // skip USERID Column, it used for system internal filtering of data
+
 			//If column alias was specified in columnDefinitions override the columnName with this value
-			String colLinkName = columnName.toUpperCase();
-			if (columnDefinitions != null && columnDefinitions.get(colLinkName) != null) {
-				ColumnDefinition columnDef = columnDefinitions.get(colLinkName);
+			String name = columnName.toUpperCase();
+			if (columnDefinitions != null && columnDefinitions.get(name) != null) {
+				ColumnDefinition columnDef = columnDefinitions.get(name);
 				if (columnDef != null && columnDef.getColumnAlias() != null) {
 					columnName = columnDef.getColumnAlias().toUpperCase();
 				}
@@ -196,11 +222,13 @@ public class UITable extends UIComponentTemplate{
 		return tableRows.toString();
 	}
 
-	private synchronized String getTableHtml(SqlRowSet resultSet,  Map<String, String> pagingParams, Map<String, ColumnDefinition> columnDefinitions) throws Exception {
+	private synchronized String getTableHtml(SqlRowSet resultSet, Table table) throws Exception {
 		StringBuilder tableRows = new StringBuilder();
+
 		int rowCount = 0;
 		int selectedPagingIndex = SUMMARY_DEFAULT_PAGING_INDEX;
 
+		Map<String, String> pagingParams = table.getPagingParams();
 		if (pagingParams != null)
 			selectedPagingIndex = Integer.parseInt(
 					pagingParams.entrySet().stream()
@@ -209,8 +237,10 @@ public class UITable extends UIComponentTemplate{
 
 		tableRows.append("<div id='?id'>");
 		tableRows.append("<div style='overflow-x:auto !important;height: 55vh'>");
-		tableRows.append("<table class='table'>");
+		tableRows.append(getTableUniqueHash());
+		tableRows.append("<table id='table_?id' class='table'>");
 		tableRows.append("<thead>");
+		Map<String, ColumnDefinition> columnDefinitions = table.getColumnDefinitions();
 		tableRows.append(getTableColumnsHtml(resultSet, columnDefinitions));
 		tableRows.append("</thead>");
 		tableRows.append("<tbody>");
@@ -233,7 +263,30 @@ public class UITable extends UIComponentTemplate{
 		int currentRow = 0;
 		int rowsToDisplay = 0;
 
+		var users = UserService.getAllUsersBelongingToUserGroups(AuthenticationService.getAuthentication().getName());
+
 		while (resultSet.next()) {
+
+			boolean skipRow = false;
+			int c = m.getColumnCount();
+			for (int i = 1; i <= c; i++) {			
+				String columnAlias = m.getColumnLabel(i);//get column label/alias not actual name		
+				String name = columnAlias.toUpperCase();
+				if (name.equals(DATA_FILTERING_COLUMN_USERID)) {
+					Long userId = resultSet.getLong(i);
+					// skip do not display row on UI, since user does not have the access rights
+					// to view other user's data from other groups
+					long count = users.stream().filter(u -> u.getId() == userId).count();
+					if (count == 0l) {
+						skipRow = true;
+						rowCount--;
+						break;
+					}
+				}
+			}
+
+			if (skipRow) continue;
+
 			currentRow++;
 
 			if (selectedPagingIndex != SUMMARY_DEFAULT_PAGING_INDEX && currentRow < recordIndex)
@@ -248,6 +301,8 @@ public class UITable extends UIComponentTemplate{
 			int count = m.getColumnCount();
 			for(int i = 1; i<=count; i++) {
 				String columnName = m.getColumnLabel(i);
+				if (columnName.toUpperCase().equals(DATA_FILTERING_COLUMN_USERID))
+					continue; // skip USERID Column, it used for system internal filtering of data
 				tableRows.append(setColumnValue(columnName, resultSet, columnDefinitions));
 			}
 
@@ -276,7 +331,7 @@ public class UITable extends UIComponentTemplate{
 		tableRows.append("</table>");
 		tableRows.append("</div>");
 
-		String pagination = getPagination(rowCount, selectedPagingIndex, pagingParams);
+		String pagination = getPagination(rowCount, selectedPagingIndex, table);
 
 		int displayFromRecordIndex = rowCount > 0 ? recordIndex : 0;
 		int displayToRecordIndex = recordIndex + PAGING_ROWS - 1;
@@ -340,181 +395,6 @@ public class UITable extends UIComponentTemplate{
 		}
 
 		return columnValue;
-	}
-
-	private String getPagination(int rowCount, int selectedPagingIndex, Map<String, String> pagingParams) {
-
-		int pagingSize = 0;
-
-		if (rowCount % PAGING_ROWS > 0) {
-			pagingSize = rowCount / PAGING_ROWS + 1;
-		}
-		else
-		{
-			pagingSize = rowCount / PAGING_ROWS;
-		}
-
-		int selectedPagingIndexIsLast = 0;
-		int selectedStartPagingIndex = 0;
-		int selectedEndPagingIndex = 0;
-		if (pagingParams != null) {
-			selectedPagingIndexIsLast = Integer.parseInt(
-					pagingParams.entrySet().stream()
-					.filter(k -> k.toString().startsWith("summarySelectedIndexLast"))
-					.findFirst().get().getValue());
-
-			selectedStartPagingIndex = Integer.parseInt(
-					pagingParams.entrySet().stream()
-					.filter(k -> k.toString().startsWith("summarySelectedIndexStart"))
-					.findFirst().get().getValue());
-
-			selectedEndPagingIndex = Integer.parseInt(
-					pagingParams.entrySet().stream()
-					.filter(k -> k.toString().startsWith("summarySelectedIndexEnd"))
-					.findFirst().get().getValue());
-		}
-
-
-		StringBuilder sb = new StringBuilder();
-		String pagingUniqueId = UUID.randomUUID().toString();
-		String pagingMethodUniqueId = pagingUniqueId.substring(0, 10).replace("-", "");
-		sb.append("<form id='summaryNavForm_?pagingUniqueId' method='POST' action='?pagingUrl'>");
-		sb.append("<input type='hidden' id='summaryHash_?summaryHash' name='summaryHash_?summaryHash' val='?summaryHash'/>"); //used to save table resultset state in DataHolder object
-		sb.append("<input type='hidden' id='summaryCurrentIndex_?pagingUniqueId' name='summaryCurrentIndex_?pagingUniqueId' val='?currentIndex'/>");
-		sb.append("<input type='hidden' id='summarySelectedIndex_?pagingUniqueId' name='summarySelectedIndex_?pagingUniqueId'/>");
-		sb.append("<input type='hidden' id='summarySelectedIndexLast_?pagingUniqueId' name='summarySelectedIndexLast_?pagingUniqueId' val='0'/>");
-		sb.append("<input type='hidden' id='summarySelectedIndexStart_?pagingUniqueId' name='summarySelectedIndexStart_?pagingUniqueId' val='?startPagingIndex'/>");
-		sb.append("<input type='hidden' id='summarySelectedIndexEnd_?pagingUniqueId' name='summarySelectedIndexEnd_?pagingUniqueId' val='?endPagingIndex'/>");
-
-		// Previous Button
-		sb.append("<nav aria-label=\"...\">\r\n" + 
-				"  <ul class=\"pagination\">\r\n" + 
-				"     <li class=\"page-item ?prvClass\"><button class=\"page-link\" tabindex='-1' onclick='sendPaging_?pagingMethodUniqueId(?previousIndex, 0)'>Previous</button></li>\r\n");
-
-
-		int startPagingIndex = SUMMARY_DEFAULT_PAGING_INDEX;
-		// Reformat paging selector (Previous, ..., 1,2,3,4,5, ..., Next) 
-		// to start from the new start index, like (Previous, ..., 6,7,8,9, ..., Next)
-		if (selectedPagingIndexIsLast > 0)
-		{
-			// Button (...) selected
-			startPagingIndex = selectedPagingIndex;
-		}	
-		else if (selectedEndPagingIndex > 1 && selectedPagingIndex > selectedEndPagingIndex)
-		{
-			// Button Next clicked when Start index = 1 like (Previous, ..., 1, 2, 3, 4, ..., Next))
-			startPagingIndex = selectedPagingIndex;
-		}
-		else if (selectedPagingIndex < selectedStartPagingIndex)
-		{
-			// Button Previous clicked when Start index > 1 like (Previous, ..., 9, 10, 11, 12, ..., Next))
-			startPagingIndex = selectedStartPagingIndex - MAX_NUMBER_OF_PAGING_BUTTONS -1;
-		}
-		else if (selectedStartPagingIndex > 1)
-		{
-			// Button Next clicked when Start index > 1 like (Previous, ..., 9, 10, 11, 12, ..., Next)
-			startPagingIndex = selectedStartPagingIndex;
-		}
-
-		// if start index > 1, that is (Previous, ..., 9, 10, 11, 12, ..., Next)
-		// add a left (...) button, after Previous button
-		if (startPagingIndex > 1)
-		{
-			int previousStartIndex = startPagingIndex - MAX_NUMBER_OF_PAGING_BUTTONS - 1;
-			String paginationLink = "<li class=\"page-item ?active\"><button class=\"page-link\" onclick='sendPaging_?pagingMethodUniqueId(" + previousStartIndex + ", " + previousStartIndex + ")'>...</button></li>\r\n";
-			paginationLink = paginationLink.replace("?active", "");
-			sb.append(paginationLink);
-		}
-
-		int endPagingIndex = startPagingIndex - 1;
-
-		int counter = 0;
-		for (int pageNum = startPagingIndex; pageNum <= pagingSize; pageNum++) {
-			String paginationLink = "<li class=\"page-item ?active\"><button class=\"page-link\" onclick='sendPaging_?pagingMethodUniqueId("+ pageNum +", 0)'>" + pageNum + "</button></li>\r\n";
-			paginationLink = selectedPagingIndex == pageNum ? paginationLink.replace("?active", "active") : paginationLink.replace("?active", "");
-
-			if (counter > MAX_NUMBER_OF_PAGING_BUTTONS)
-			{
-				paginationLink = "<li class=\"page-item ?active\"><button class=\"page-link\" onclick='sendPaging_?pagingMethodUniqueId(" + pageNum + ", " + pageNum + ")'>...</button></li>\r\n";
-				paginationLink = selectedPagingIndex == pageNum ? paginationLink.replace("?active", "active") : paginationLink.replace("?active", "");
-				sb.append(paginationLink);
-				break;
-			}
-
-			counter++;
-			sb.append(paginationLink);
-			endPagingIndex++;
-		}
-
-		// Next button
-		sb.append("      <li class=\"page-item ?nextClass\"><button class=\"page-link\" onclick='sendPaging_?pagingMethodUniqueId(?nextIndex, 0)'>Next</button></li>\r\n" +
-				"  </ul>\r\n" + 
-				"</nav>");
-
-		sb.append("</form>"
-				+ "<script>"
-				+ "\n "
-				+ "\n "
-				+ "\n function sendPaging_?pagingMethodUniqueId(index, lastIndex){"
-				+ "\n  $('input[name=\"summaryCurrentIndex_?pagingUniqueId\"]').val(index);"
-				+ "\n  $('input[name=\"summarySelectedIndex_?pagingUniqueId\"]').val(index);"
-				+ "\n  $('input[name=\"summaryHash_?summaryHash\"]').val('?summaryHash');"
-				+ "\n  $('input[name=\"summarySelectedIndexLast_?pagingUniqueId\"]').val(lastIndex);"
-				+ "\n  $('input[name=\"summarySelectedIndexStart_?pagingUniqueId\"]').val(?startPagingIndex);"
-				+ "\n  $('input[name=\"summarySelectedIndexEnd_?pagingUniqueId\"]').val(?endPagingIndex);"
-				+ "\n  $('summaryNavForm_?pagingUniqueId').submit();"
-				+ "\n };"
-				+ "\n"
-				+ "\n $(document).ready(function(){\r\n"
-				+ "    $('#summaryNavForm_?pagingUniqueId').on(\"submit\", function(event){\r\n"
-				+ "        event.preventDefault();\r\n"
-				+ "        var formValues= $('#summaryNavForm_?pagingUniqueId').serialize();\r\n"
-				+ "        console.log('calling paging url: ?pagingUrl');"
-				+ "        executeProcess('?pagingUrl', formValues, false, '#?id');"
-				+ "    });\r\n"
-				+ "});\r\n"
-				+ "\r\n"
-				+ "</script>");
-
-		String pagingHtml = sb.toString();
-		if (pagingSize == 0) {
-			pagingHtml = pagingHtml.replace("?prvClass", "disabled");
-			pagingHtml = pagingHtml.replace("?nextClass", "disabled");
-		}
-		else
-		{ 
-			if (selectedPagingIndex > 1)
-			{
-				pagingHtml = pagingHtml.replace("?prvClass", "enabled");
-			}
-			else
-			{
-				pagingHtml = pagingHtml.replace("?prvClass", "disabled");
-			}
-
-			if (selectedPagingIndex >= pagingSize)
-			{
-				pagingHtml = pagingHtml.replace("?nextClass", "disabled");
-			}
-			else
-			{
-				pagingHtml = pagingHtml.replace("?nextClass", "enabled");
-			}
-		}
-
-		int nextIndex = selectedPagingIndex;
-		nextIndex++;
-		int previousIndex = selectedPagingIndex;
-		previousIndex--;
-		pagingHtml = pagingHtml.replace("?startPagingIndex", Integer.toString(startPagingIndex));
-		pagingHtml = pagingHtml.replace("?endPagingIndex", Integer.toString(endPagingIndex));
-		pagingHtml = pagingHtml.replace("?currentIndex", Integer.toString(selectedPagingIndex));
-		pagingHtml = pagingHtml.replace("?nextIndex", Integer.toString(nextIndex));
-		pagingHtml = pagingHtml.replace("?previousIndex", Integer.toString(previousIndex));
-		pagingHtml = pagingHtml.replace("?pagingUniqueId", pagingUniqueId);
-		pagingHtml = pagingHtml.replace("?pagingMethodUniqueId", pagingMethodUniqueId);
-
-		return pagingHtml;
 	}
 
 }

@@ -3,11 +3,13 @@ package com.patroclos.model;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "failedLoginAttempts")
@@ -20,7 +22,8 @@ public class FailedLoginAttempt implements Serializable {
 	
 	@Id
 	@Column
-	@GeneratedValue(generator = "failedLoginAttempts_sequence")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "failedLoginAttempts_sequence")
+	@SequenceGenerator(name = "failedLoginAttempts_sequence", sequenceName = "failedLoginAttempts_sequence", allocationSize = 1)
 	private Long id;
 	@Column
 	private String username;

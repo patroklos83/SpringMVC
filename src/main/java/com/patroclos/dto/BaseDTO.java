@@ -3,9 +3,10 @@ package com.patroclos.dto;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import jakarta.persistence.*;
 import com.patroclos.model.User;
 
 public class BaseDTO implements Serializable{
@@ -94,5 +95,4 @@ public class BaseDTO implements Serializable{
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-
 }

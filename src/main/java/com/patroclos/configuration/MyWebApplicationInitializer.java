@@ -1,21 +1,21 @@
 package com.patroclos.configuration;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.context.support.GenericWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
-    
-    @Override
-    public void onStartup(ServletContext sc) throws ServletException {
-        sc.getSessionCookieConfig().setHttpOnly(true);        
-        sc.getSessionCookieConfig().setSecure(true);        
-    }
+
+	@Override
+	public void onStartup(jakarta.servlet.ServletContext servletContext) throws jakarta.servlet.ServletException {
+		servletContext.getSessionCookieConfig().setHttpOnly(true);        
+		servletContext.getSessionCookieConfig().setSecure(true);  	
+				
+		// If you wish to place constraints on a single user’s ability to log in to your application, 
+		// Spring Security supports this out of the box with the following simple additions. 
+		// First, you need to add the following listener to your configuration to keep Spring Security
+		// updated about session lifecycle events	
+		servletContext.addListener(new HttpSessionEventPublisher());
+	}
 
 }

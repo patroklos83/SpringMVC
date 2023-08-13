@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.patroclos.businessobject.ArticleBO;
 import com.patroclos.facade.Facade;

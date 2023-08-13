@@ -3,15 +3,9 @@ package com.patroclos.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-import javax.servlet.ServletContext;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +15,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -42,15 +34,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.patroclos.businessobject.ArticleBO;
 import com.patroclos.dto.ArticleDTO;
 import com.patroclos.facade.Facade;
-import com.patroclos.model.Article;
 import com.patroclos.repository.IRepository;
 
+import jakarta.servlet.ServletContext;
+
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
 @ActiveProfiles("Test")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfigTest.class })
 @WebAppConfiguration("WebContent")
+@SpringJUnitWebConfig
 @TestInstance(Lifecycle.PER_CLASS)
 public class IntegrationTest {
 	

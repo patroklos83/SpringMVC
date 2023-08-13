@@ -16,12 +16,33 @@ public class AuditEnversRepository extends Repository {
 		AuditReader auditReader = AuditReaderFactory.get(em);
 		@SuppressWarnings("unchecked")
 		List<Object[]> revResults  = auditReader.createQuery()
-		.forRevisionsOfEntityWithChanges(o, false)
+		.forRevisionsOfEntityWithChanges(o, false)	
 		.add(AuditEntity.property("lastUpdatedByprocessId").eq(processId))
 		.add(AuditEntity.property("id").eq(id))
 		.getResultList();		
 		return revResults;
 	}
+	
+//	// get nested relations many/many
+//	public List<Object[]> getEntityRevisionsNested(Class<? extends BaseO> o, Long id, String processId) {
+//		AuditReader auditReader = AuditReaderFactory.get(em);
+//		@SuppressWarnings("unchecked")
+//		List<Object[]> revResults  = auditReader.createQuery()
+//		.forRevisionsOfEntity(o, true, true)		
+//		.add(AuditEntity.property("lastUpdatedByprocessId").eq(processId))
+//		.add(AuditEntity.property("id").eq(id))
+//		.traverseRelation("citations", JoinType.LEFT)
+//		.getResultList();		
+	
+	
+//	var l = AuditReaderFactory.get(em )
+//	.createQuery()
+//	.forEntitiesAtRevision(Article.class, 1)
+//	.traverseRelation("citations", JoinType.INNER)
+//	.getResultList();
+
+//		return revResults;
+//	}
 
 	public List<Object[]> getEntityRevisionsBeforeRevision(Class<? extends BaseO> o, Long id, int revisionNumber) {
 		AuditReader auditReader = AuditReaderFactory.get(em);
@@ -30,13 +51,13 @@ public class AuditEnversRepository extends Repository {
 		.forRevisionsOfEntityWithChanges(o, false)
 		.add(AuditEntity.revisionNumber().lt(revisionNumber))
 		.add(AuditEntity.property("id").eq(id))
-		.getResultList();
+		.getResultList();	
 		return revResults;
 	}
 
 	public Object getEntityAtRevision(Class<? extends BaseO> o, Long id, int revisionNumber) {
 		AuditReader auditReader = AuditReaderFactory.get(em);
-		Object revResults  = auditReader.find(o, id, revisionNumber);
+		Object revResults  = auditReader.find(o, id, revisionNumber);	
 		return revResults;
 	}
 

@@ -69,7 +69,7 @@ No template will serve all projects since your needs may be different. So I'll b
 
 ### Built With
 
-* [![Spring][spring-shield]][contributors-url] version 5.3.20
+* [![Spring][spring-shield]][contributors-url] version 6.0.10
 * [![Bootstrap][Bootstrap.com]][Bootstrap-url] version 5.1.3
 * [![JQuery][JQuery.com]][JQuery-url] version 3.6.0
 
@@ -77,8 +77,8 @@ No template will serve all projects since your needs may be different. So I'll b
 
 ### Prerequisites
 
-* java 11
-* Tomcat 9
+* java 19
+* Tomcat 10.1
 * Eclipse IDE
 
 ### Installation

@@ -65,7 +65,7 @@ public class ActivityLogController extends PageController{
 			
 			model.addAttribute("pagetitle", 
 					String.format("<h3>Activity Audit Changes for %s #%s, applied by [%s] on %s</h3>"
-					+ "<br><h5>Revision %s</h5>", 
+					+ "<br><h5>Revision id #%s</h5>", 
 					firstRevisionAuditProperty.getEntity(),
 					firstRevisionAuditProperty.getEntityId().toString(),
 					activityLongDetailDto.getActivityLog().getCreatedByuser().getUsername(),

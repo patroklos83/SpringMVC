@@ -30,6 +30,8 @@ public class RoleBO extends BaseBO {
 	public static final String ROLE_ADMIN = "ROLE_ADMIN";
 	public static final String ROLE_USER = "ROLE_USER";
 	public static final String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+	
+	private static final String ROLE_NAME_PREFIX = "ROLE_";
 
 	@Autowired
 	private RoleRepository RoleRepository;
@@ -56,6 +58,9 @@ public class RoleBO extends BaseBO {
 	public void save(BaseO baseO) throws Exception {
 		Role role = (Role)baseO;
 		boolean isNew = baseO.isNew();
+		
+		String name = role.getName().startsWith(ROLE_NAME_PREFIX) ? role.getName().replaceFirst(ROLE_NAME_PREFIX, "") : role.getName();
+		role.setName(name.toUpperCase().trim());
 
 		if (isNew) {
 			List<BaseO> entities = EntityAccessBO.loadAll();
@@ -118,7 +123,7 @@ public class RoleBO extends BaseBO {
 	@Override
 	public void validateOnSave(BaseO baseO) throws Exception {
 		Role role = (Role)baseO;
-		
+			
 		if (role.getName() == null || role.getName().isBlank())
 			throw new ValidationException("Please specify Role Name");
 		
@@ -128,7 +133,7 @@ public class RoleBO extends BaseBO {
 			throw new ValidationException("Role name must contain only letters");
 		}
 		
-		String name = !role.getName().startsWith("ROLE_") ? "ROLE_%s".formatted(role.getName()) : role.getName();
+		String name = !role.getName().startsWith(ROLE_NAME_PREFIX) ? "ROLE_%s".formatted(role.getName()) : role.getName();
 		role.setName(name.toUpperCase().trim());
 			
 		Map<String, Object> params = new HashMap<String, Object>();

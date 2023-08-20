@@ -18,6 +18,7 @@ public class UIModal extends UIComponent {
 	public static final String MODAL_CONFIRM_BUTTON_ID = "#modalConfirmBtn";
 	
 	public static final String MODAL_CONFIRM_BUTTON_PLACEHOLDER_UNIQUE_ID = "?uniqueId";
+	public static final String MODAL_CONFIRM_BUTTON_JAVASCRIPT_FUNCTION = "executeTableAddConfirm_";
 	
 	public String getModalConfirmButtonScript() {
 		return getModalConfirmButtonScript(null);
@@ -30,14 +31,14 @@ public class UIModal extends UIComponent {
 				+ "\n"
 				+ "\n" // Set Modal confirm button with the proper confirm function
 				+ "\n    $('" + MODAL_CONFIRM_BUTTON_ID + "').removeAttr('onclick');"
-			    + "\n    $('" + MODAL_CONFIRM_BUTTON_ID + "').attr('onClick', 'executeTableAddConfirm_" + MODAL_CONFIRM_BUTTON_PLACEHOLDER_UNIQUE_ID + "();');"
+			    + "\n    $('" + MODAL_CONFIRM_BUTTON_ID + "').attr('onClick', '" + MODAL_CONFIRM_BUTTON_JAVASCRIPT_FUNCTION + MODAL_CONFIRM_BUTTON_PLACEHOLDER_UNIQUE_ID + "();');"
 				+ "\n"
-				+ "\n	function executeTableAddConfirm_"+ MODAL_CONFIRM_BUTTON_PLACEHOLDER_UNIQUE_ID + "(){"
+				+ "\n	function " + MODAL_CONFIRM_BUTTON_JAVASCRIPT_FUNCTION + MODAL_CONFIRM_BUTTON_PLACEHOLDER_UNIQUE_ID + "(){"
 				+ "\n"
 				+ "\n		$('input[name=\"summaryHash_?summaryHash\"]').val('?summaryHash');\r\n"
 				+ "\n		$('input[name=\""+MODAL_TABLE_REFERENCE_PARENT_PLACEHOLDER_NAME+"\"]').val('"+MODAL_TABLE_REFERENCE_PARENT_PLACEHOLDER_ID+"');\r\n"
 				+ "\n       $('input[name=\"dataFunction_?summaryHash\"]').val('" + DataTableFunction.Add + "');"
-				+ "\n		var formValues= $('input[name*=\"selected_?id\"], "
+				+ "\n		var formValues= $('input[id^=selected_?id], "
 				+ "input[name*=\""+MODAL_TABLE_REFERENCE_PARENT_PLACEHOLDER_NAME+"\"], "
 				+ "input[id=\"hash\"],"
 				+ "input[name*=\"summaryHash_?summaryHash\"], "

@@ -32,6 +32,8 @@ import com.patroclos.model.BaseO;
 import com.patroclos.model.User;
 import com.patroclos.service.IAuthenticationService;
 import com.patroclos.utils.ProcessUtil;
+import com.patroclos.repository.IRepository;
+import com.patroclos.utils.CustomModelMapper;
 
 @Component("Repository")
 public class Repository implements IRepository {
@@ -44,6 +46,10 @@ public class Repository implements IRepository {
 	private IAuthenticationService AuthenticationFacade;	
 	@Autowired
 	private CustomModelMapper CustomModelMapper;
+	
+	public EntityManager getEm() {
+		return em;
+	}
 
 	public void save(BaseO o) throws Exception {
 		save(o, false);
@@ -117,7 +123,8 @@ public class Repository implements IRepository {
 	 */
 	public <T> List<?> query(String query, Class<T> t, FlushModeType flushModeType) {
 		Query q = em.createQuery(query, t);
-		q.setFlushMode(flushModeType);
+		q.setFlushMode(flushModeType);		
+		
 		return q.getResultList();
 	}
 	
@@ -129,16 +136,6 @@ public class Repository implements IRepository {
 	public <T> List<?> query(String query, Class<T> t) {
 		return query(query, t, FlushModeType.AUTO);
 	}
-//
-//	/***
-//	 * When calling createQuery on entityManager, 
-//	 * all dirty entities will be flushed first
-//	 * and then retrieved by the query
-//	 */
-//	public <T> List<?> query(String query, Class<T> t) {
-//		Query q = em.createQuery(query, t);
-//		return q.getResultList();
-//	}
 	
 	/***
 	 * Overload moethod [query] and let user decide
@@ -160,7 +157,9 @@ public class Repository implements IRepository {
 				q.setParameter(param, params.get(param));
 			}	
 		}
-		return q.getResultList();
+		
+		List<?> result = q.getResultList();
+		return result;
 	}
 	
 	/***
@@ -171,21 +170,6 @@ public class Repository implements IRepository {
 	public List<?> query(String hql, Map<String, Object> params) {
 		return query(hql, params, FlushModeType.AUTO);
 	}
-
-//	/***
-//	 * When calling createQuery on entityManager, 
-//	 * all dirty entities will be flushed first
-//	 * and then retrieved by the query
-//	 */
-//	public List<?> query(String hql, Map<String, Object> params) {
-//		Query q = em.createQuery(hql);		
-//		if (params != null) {
-//			for (String param : params.keySet()) {
-//				q.setParameter(param, params.get(param));
-//			}	
-//		}
-//		return q.getResultList();
-//	}
 
 	/***
 	 * Workaround for the One to Many child relations,
@@ -332,6 +316,9 @@ public class Repository implements IRepository {
 	public void removeChildsSetOrphans(BaseO parent, List<BaseO> childsCurrent, Class<? extends BaseO> dataListType) throws Exception  {
 
 		String foreignKeyColumnName = getParentForeingKey(parent, dataListType);
+		if (foreignKeyColumnName == null) {
+			throw new Exception("Repository: Cannot find foreignKey annotation on entity [%s] for parent [%s]".formatted(dataListType, parent.getClass().getSimpleName()));
+		}
 		
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
 		sqlParams.addValue("Id", parent.getId());
@@ -403,7 +390,7 @@ public class Repository implements IRepository {
 			f.setAccessible(true);
 			ManyToOne manyToOne = f.getAnnotation(ManyToOne.class);
 			MapsId mapsId = f.getAnnotation(MapsId.class);
-			if (manyToOne == null || mapsId == null) continue;
+			if (manyToOne == null) continue;// || mapsId == null) continue;
 
 			if (!f.getType().getTypeName().equals(parent.getClass().getTypeName())) continue;
 
@@ -421,7 +408,7 @@ public class Repository implements IRepository {
 		return JdbcTemplate.queryForRowSet(query, args);
 	}
 
-	private void addActivityLogDetails(BaseO o, com.patroclos.model.User dbUser, String executingThreadName) throws Exception {
+	private void addActivityLogDetails(BaseO o, User dbUser, String executingThreadName) throws Exception {
 		if (!(o instanceof ActivityLog)) {
 			ActivityLogDetail activityLogDetail = new ActivityLogDetail();
 			activityLogDetail.setCreatedByuser(dbUser);

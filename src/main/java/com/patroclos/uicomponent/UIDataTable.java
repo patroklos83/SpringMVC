@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.patroclos.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +22,6 @@ import com.patroclos.uicomponent.core.ColumnDefinitionType;
 import com.patroclos.uicomponent.core.DataTableFunction;
 import com.patroclos.uicomponent.core.Table;
 import com.patroclos.utils.DateUtil;
-
-import javassist.expr.FieldAccess;
 
 import static com.patroclos.uicomponent.UIModal.*;
 
@@ -333,9 +330,9 @@ public class UIDataTable extends UITableBase {
 
 		if (value != null)
 		{
-			if (fieldType == String.class || fieldType == Long.class) {
-				String stringValue = (String) fieldType.cast(field.get(object));
-				// do something with the string value
+			if (fieldType == Long.class) {
+				Long number = (Long) field.get(object);
+				value = number != null ? number.longValue() : "";
 			}
 			else if (fieldType == LocalDateTime.class) { //DateTime column type
 				value = DateUtil.convertDbDateToUiDateFormat(value.toString());

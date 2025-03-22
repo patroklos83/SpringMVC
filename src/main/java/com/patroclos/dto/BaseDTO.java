@@ -3,10 +3,6 @@ package com.patroclos.dto;
 import java.io.Serializable;
 import java.time.Instant;
 
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-
-import jakarta.persistence.*;
 import com.patroclos.model.User;
 
 public class BaseDTO implements Serializable{
@@ -16,7 +12,7 @@ public class BaseDTO implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected long id;
+	protected Long id;
 
 	protected User createdByuser;
 
@@ -51,8 +47,11 @@ public class BaseDTO implements Serializable{
 		return this.id;
 	}
 
-	public void setId(long Id) {
-		if (Id > 0) this.isNew = false;
+	public void setId(Long Id) {
+		if (Id != null && Id > 0) this.isNew = false;
+		if (Id == null) {
+			Id = 0l;
+		}
 		this.id = Id;
 	}
 

@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class ProcessUtil {
 	
-	public static final String PROCESS_ID_PREFIX = "ProcessId_";
+	public static final String PROCESS_ID_PREFIX = "PROCESS_";
 	
 	public static String getActivityProcessId() {
 		String processId = PROCESS_ID_PREFIX

@@ -118,7 +118,6 @@ public class ProcessManager implements IProcessManager {
 			else
 				activityLogDto.setInputType(inputType);
 			activityLogDto.setInput(input);
-			activityLogDto.setId(id);
 			activityLogDto.setResult(isProcessSuccess ? 
 					BaseProcess.PROCESS_RUN_RESULT_SUCCESS 
 					: BaseProcess.PROCESS_RUN_RESULT_FAIL);

@@ -23,6 +23,47 @@ footer {
 <body>
 	<section layout:fragment="childpage">
 	
+	       <style>
+		    #output {
+		      font-family: monospace;
+		      font-size: 0.9rem;
+		      white-space: pre-wrap;
+		      border-right: 2px solid black;
+		      display: inline-block;
+		      animation: blink 0.7s infinite step-end alternate;
+		    }
+		
+		    @keyframes blink {
+		      from { border-color: transparent; }
+		      to { border-color: black; }
+		    }
+		  </style>
+           <script>
+		    function typeWriterEffect(text, elementId, speed = 100) {
+		      const element = document.getElementById(elementId);
+		      let i = 0;
+		
+		      function type() {
+		        if (i < text.length) {
+		          element.textContent += text.charAt(i);
+		          i++;
+		          setTimeout(type, speed);
+		        } else {
+		        	$(".ai-icon").hide();
+				}
+		      }
+		
+		      type();
+		    }
+		
+		    const myText = "[(${message})]";
+		    typeWriterEffect(myText, "output", 40); // 80ms per character
+		  </script>
+               [(${aiData})]
+               <img alt="" class="ai-icon" th:src="${contextPath} + '/assets/img/artificial-intelligence.gif'" width="50"></img>
+               <div id="output"></div>
+               <br/>
+	
 	<div style="margin: 5% 10% 5% 10%">
 	
 		<div class="d-flex bd-highlight">

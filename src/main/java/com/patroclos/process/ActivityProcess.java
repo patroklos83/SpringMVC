@@ -1,5 +1,6 @@
 package com.patroclos.process;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,5 +165,14 @@ public class ActivityProcess extends BaseProcess {
 
 	public Map<String, AuditedPropertyDTO> getActivityLogRevisionChanges(BaseDTO input) throws Exception {
 		return CRUDService.getActivityLogRevisionChanges(input.getId());
+	}
+	
+	/**
+	 * Get the latest Activity log from the last 10 days
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ActivityLogDTO> getLatestActivities() throws Exception {
+		return ActivityService.getLatestActivities();		
 	}
 }

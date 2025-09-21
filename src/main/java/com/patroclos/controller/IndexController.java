@@ -1,14 +1,15 @@
 package com.patroclos.controller;
 
 import java.util.Base64;
+import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,11 +17,22 @@ import org.springframework.web.servlet.ModelAndView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.patroclos.controller.core.BaseController;
 
+@Slf4j
 @Controller
 public class IndexController extends BaseController {
-
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public ModelAndView getPageDefault(ModelMap model, @RequestParam(required = false) String page) throws Exception {
+	
+	public static String themeFolder = "main";
+	
+	/***
+	 * Define the / root path as per the below annotation values, produces = MediaType.TEXT_HTML_VALUE.
+	 * Avoid conflicts with the swagger springdoc / root path index
+	 * @param model
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	@GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
+	public ModelAndView getPageDefault(ModelMap model, @RequestParam(name="page", required = false) String page) throws Exception {
 		if (page != null) {
 			setMasterPageInnerForm(model, page);
 		}
@@ -33,11 +45,13 @@ public class IndexController extends BaseController {
 		if (loggedUser == null || loggedUser.getId() == 1) //anonymous User
 			return super.pageLoad("login", model);
 		
-		return super.pageLoad("main/index", model);
+		setCommonAttributes(model);
+		log.info("entering: " + themeFolder + "/index");
+		return super.pageLoad(themeFolder + "/index", model);
 	}
 	
-	@RequestMapping(value = "/index", method = RequestMethod.GET)
-	public ModelAndView getPage(ModelMap model, @RequestParam(required = false) String page) throws Exception {
+	@GetMapping("/index")
+	public ModelAndView getPage(ModelMap model, @RequestParam(name="page", required = false) String page) throws Exception {
 		if (page != null) {
 			setMasterPageInnerForm(model, page);
 		}
@@ -47,12 +61,13 @@ public class IndexController extends BaseController {
 		}		
 		
 		setCommonAttributes(model);
-		return super.pageLoad("main/index", model);
+		log.info("entering: " + themeFolder + "/index");
+		return super.pageLoad(themeFolder + "/index", model);
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/", method = RequestMethod.POST)	
-	public ModelAndView postPage(ModelMap model, @RequestParam("vars") String vars) throws Exception {
+	@PostMapping("/")	
+	public ModelAndView postPage(ModelMap model, @RequestParam(name="vars") String vars) throws Exception {
 		if (vars != null) {
 			byte[] paramsBytes = Base64.getDecoder().decode(vars.getBytes());
 			String params = new String(paramsBytes);
@@ -62,23 +77,24 @@ public class IndexController extends BaseController {
 		}		
 		
 		setCommonAttributes(model);
-		return super.pageLoad( "main/index", model);
+		return super.pageLoad(themeFolder + "/index", model);
 	}
 	
 	private void setCommonAttributes(ModelMap model) throws Exception {
 		boolean isAdmin = AuthenticationFacade.isLoggedUserAdmin();		
 		model.addAttribute("permissionUserManagement", isAdmin);
-		model.addAttribute("permissionActivityLog", isAdmin);		
+		model.addAttribute("permissionActivityLog", isAdmin);	
+		model.addAttribute("permissionScheduler", isAdmin);
 		model.addAttribute("contextPath", WebUtils.getContextPath());
 	}
 	
-	@RequestMapping(value = "/tablePaging", produces = MediaType.TEXT_HTML_VALUE)
+	@PostMapping(value = "/tablePaging", produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String getTablePaging(@RequestParam Map<String,String> pagingParams, ModelMap model) throws Exception {
 		return super.getTablePaging(pagingParams, model);
 	}
 	
-	@RequestMapping(value = "/tableDataFunc", produces = MediaType.TEXT_HTML_VALUE)
+	@PostMapping(value = "/tableDataFunc", produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String executeTableDataFunc(@RequestParam Map<String,String> params) throws Exception {
 		return super.executeTableDataFunc(params);

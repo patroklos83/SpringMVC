@@ -36,6 +36,8 @@ import com.patroclos.uicomponent.*;
 public class BaseController {
 
 	@Autowired
+	protected SystemFacade SystemFacade;
+	@Autowired
 	protected Facade Facade;
 	@Autowired
 	protected AuthenticationFacade AuthenticationFacade;
